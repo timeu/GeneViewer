@@ -102,7 +102,6 @@ void api_setGeneData(geneData)
 {
     if (layout.maximumZoomToDraw == -1 || layout.getZoomLength() <= layout.maximumZoomToDraw )
     {
-        println("setgenedata");
         ArrayList genes = new ArrayList();   
         for (int i =0;i<geneData.length;i++)
         {
@@ -467,8 +466,6 @@ class Layout
    
    void resetZoom()
    {
-      println(length);
-      println(this.length);
       zoomStart = 0;
       zoomEnd = length;
       initPxPerBb();
@@ -655,20 +652,18 @@ class Gene
 	  }
       renderGeneLine();
       
-      boolean debug = false;
-      if (name == "AT1G24510.1")
-         debug = true;
+      
       if (layout.maximumZoomToDrawFeatures == -1 || layout.getZoomLength() <= layout.maximumZoomToDrawFeatures)
       {
 	      for (int i = 0;i<utrs.size();i++)
 	      {
 	          UTR utr = utrs.get(i);
-	          utr.render(lane,debug);
+	          utr.render(lane);
 	      }
 	      for (int i = 0;i<cds.size();i++)
 	      {
 	          CDS cdsItem = cds.get(i);
-	          cdsItem.render(lane,debug);
+	          cdsItem.render(lane);
 	      }
 	  }
       renderStrandArrow();
@@ -738,7 +733,7 @@ class UTR extends GeneFeature
   {
      super(start,end);
   }
-  void render(int lane,boolean debug)
+  void render(int lane)
   {
        PVector[] positions = layout.getPositions(start,end,"utr",lane);
        PVector startPosition = (PVector)positions[0];
@@ -747,8 +742,6 @@ class UTR extends GeneFeature
        strokeCap(SQUARE);
        rectMode(CORNERS);
        noStroke();
-       if (debug && (start == '8688101' || end=='8688101'))
-          println("start:" + start + ". px_start:" + startPosition.x + ".end:"+end+". px_end:"+endPosition.x);
        rect(startPosition.x,startPosition.y,endPosition.x,endPosition.y);
    }
   
@@ -780,20 +773,16 @@ class CDS extends GeneFeature
        c = #FF8100;
     }
     
-   void render(int lane,boolean debug)
+   void render(int lane)
    {
        PVector[] positions = layout.getPositions(start,end,"cds",lane);
        PVector startPosition = (PVector)positions[0];
-       if (startPosition.x < layout.area.x)
-          println("error");
        PVector endPosition = (PVector)positions[1];
        fill(c);
        strokeCap(SQUARE);
        rectMode(CORNERS);
        noStroke();
        rect(startPosition.x,startPosition.y,endPosition.x,endPosition.y);
-       if (debug && (start == '8688101' || end=='8688101'))
-          println("start:" + start + ". px_start:" + startPosition.x + ".end:"+end+". px_end:"+endPosition.x);
    }
 }
 
