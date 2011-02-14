@@ -92,7 +92,7 @@
   </target>
 		
   <target name="release" depends="jar.manifest.release,javac" description="Build the jar for a release">
-    <jar jarfile="geneviewer-${version.num}.jar" manifest="${manifest.file}">
+    <jar jarfile="geneviewer.jar" manifest="${manifest.file}">
       <path refid="jar.files" />
     </jar>
   </target>
