@@ -22,7 +22,6 @@
 
   <path id="project.class.path">
   	<fileset dir="${lib.folder}" includes="**/*.jar" />
-  	<fileset dir="${warlib.folder}" includes="**/*.jar,**/*.class" />
     <pathelement location="${out.classes.folder}" />
     <pathelement location="${gwt.folder}/gwt-user.jar"/>
     <fileset dir="${gwt.folder}" includes="gwt-dev*.jar"/>
