@@ -32,6 +32,7 @@
     <fileset dir="${in.src.folder}" includes="**/*.java"  />
     <fileset dir="${in.src.folder}" includes="**/*.xml"  />
 	<fileset dir="${in.src.folder}" includes="**/*.js"  />
+	<fileset dir="${in.src.folder}" includes="**/*.pde"  />
     <fileset dir="." includes="META-INF/**" />
 	</path>
 
