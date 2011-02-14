@@ -9,8 +9,7 @@
   <property name="out.classes.folder" location="war/WEB-INF/classes" />
   <property name="lib.folder" location="lib" />
   <property name="warlib.folder" location="war/WEB-INF/lib" />
-  <property name="extlib.folder" location="../gwt-libs" />
-  <property name="gwt.folder" location="${extlib.folder}/gwt" />
+  <property name="gwt.folder" location="${lib.folder}/gwt" />
   <property name="manifest.file" value="MANIFEST.MF"/>
   <property name="all.geneviewer.jar.files" value="**/geneviewer*.jar"/>
   <condition property="version-suffix" value="-b${env.BUILD_NUMBER}" else="-bLOCAL">
@@ -34,6 +33,15 @@
 	<fileset dir="${in.src.folder}" includes="**/*.js"  />
 	<fileset dir="${in.src.folder}" includes="**/*.pde"  />
     <fileset dir="." includes="META-INF/**" />
+	</path>
+	
+	<path id="jar.files.redist">
+	    <fileset dir="${out.classes.folder}" includes="**/*.class"  />
+	    <fileset dir="${in.src.folder}" includes="**/*.java"  />
+	    <fileset dir="${in.src.folder}" includes="**/*.xml"  />
+		<fileset dir="${in.src.folder}" includes="**/*.js"  />
+		<fileset dir="${in.src.folder}" includes="**/*.pde"  />
+	    <fileset dir="." includes="META-INF/**" />
 	</path>
 
     	
@@ -90,11 +98,16 @@
       <path refid="jar.files" />
     </jar>
   </target>
+	
 		
   <target name="release" depends="jar.manifest.release,javac" description="Build the jar for a release">
-    <jar jarfile="geneviewer.jar" manifest="${manifest.file}">
+    <jar jarfile="geneviewer-noredist.jar" manifest="${manifest.file}">
       <path refid="jar.files" />
     </jar>
+  	<jar jarfile="geneviewer.jar" manifest="${manifest.file}">
+  	      <path refid="jar.files" />
+  		  <zipfileset src="${lib.folder}/processing-js-gwt.jar" excludes="META-INF/*" />
+  	</jar>
   </target>
 
 	
