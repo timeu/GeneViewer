@@ -1,0 +1,54 @@
+  G E N E V I E W E R  - 0.2.0
+  a GWT composite for visualization gene models.  
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  License           MIT (see included LICENSE)
+  Original Author   Ümit Seren
+  
+
+  Web Site          -  
+  Github Repo.      https://github.com/timeu/processing-js-gwt
+  Bug Tracking      -
+  Test Suite        -
+
+  
+  //////////////////////////////////////////////////////////////////////////////
+  
+  ACKNOWLEDGMENT & THIRD PARTY LIBRARIES  
+    
+    - processing.js  by John Resig (http://processingjs.org)
+    - Google Web Toolkit (GWT) by Google (http://code.google.com/webtoolkit/)
+    - jbrowse by GMOD (http://jbrowse.org)
+
+  
+  //////////////////////////////////////////////////////////////////////////////
+  
+  INTRODUCTION 
+  
+  Geneviewer is a simple Google Web Toolkit (GWT) widget for displaying gene models.
+  It uses the processing.js library to visualize the genes on a HTML5 canvas element.
+  
+  The widget implements only the client/visualization part of displaying genes.
+  The backend for getting the gene data is up to the user of this widget. 
+  It provides however a default implementation for GMOD's jbrowse backend and some
+  generic interfaces to easy implement different backends.
+  
+
+  //////////////////////////////////////////////////////////////////////////////
+  
+  PLATFORM AND BROWSER COMPATIBILITY
+  
+  As this widget uses processing.js to visualize the genes refer to the processing.js
+  documentation for information about plattform and browser compatiblity. 
+   
+  In general this widget works with browser who support the HTML5 canvas element. 
+  In case of Microsoft's IE this only applies to the Internet Explorer 9.0
+  
+  //////////////////////////////////////////////////////////////////////////////
+
+  USAGE
+  
+  to be written
+  
+  //////////////////////////////////////////////////////////////////////////////
