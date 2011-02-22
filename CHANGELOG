@@ -1,0 +1,14 @@
+February 22, 2011 - Release 0.2.0
+    
+    * backend/JBrowseDataSource.py (new class & functions): Added GeneNameTree class and function to retrieve Genes from query/name
+    * GWT: Added fetchGenesFromPrefix, searchGene, fetchGeneDescription 
+           functions and callbacks to Datasource interface and JBrowse implementation
+    * GWT: Added ServerSuggestOracle for retrieving gene-suggestion list
+    * GWT: Added new events and handlers (ClickGeneEvent, HighlightGeneEvent, UnhighlightGeneEvent) 
+    * PJS: Added new events and handlers (ClickGeneEvent, HighlightGeneEvent,UnhighlightGeneEvent)
+    * PJS: Added functionality to highlight genes/features that are hit by the selectionLine
+    * PJS: Some additional helper functions in the layout class 
+
+February 14, 2011 - Release 0.1.0
+
+    * Initial Version
