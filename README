@@ -42,7 +42,7 @@
   As this widget uses processing.js to visualize the genes refer to the processing.js
   documentation for information about plattform and browser compatiblity. 
    
-  In general this widget works with browser who support the HTML5 canvas element. 
+  In general this widget works with browser that support the HTML5 canvas element. 
   In case of Microsoft's IE this only applies to the Internet Explorer 9.0
   
   //////////////////////////////////////////////////////////////////////////////
