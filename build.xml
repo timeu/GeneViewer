@@ -33,6 +33,10 @@
 	<fileset dir="${in.src.folder}" includes="**/*.js"  />
 	<fileset dir="${in.src.folder}" includes="**/*.pde"  />
     <fileset dir="." includes="META-INF/**" />
+    <fileset dir=".">
+	   <include name="LICENSE" />
+	   <include name="README" />
+	</fileset>
 	</path>
 	
 	<path id="jar.files.redist">
