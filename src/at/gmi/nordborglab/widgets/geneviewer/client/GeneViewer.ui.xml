@@ -3,8 +3,45 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui"
 	xmlns:pjs="urn:import:com.processingjs.client">
 	<ui:style>
+	   .popupPanel {
+	   	    width:400px;
+	   	    z-index:20;
+	   	    font-family: arial,helvetica,sans-serif;
+    		font-size: 9pt;
+    		text-align: left;
+    		color: #444444;
+	   	}
+	   	.popupRowEven {
+	   		background-color: 	#F1EFEC;
+	   	}
+	   	.popupNameRow {
+	   		font-size:13pt;
+	   		font-weight:bold;
+	   	}
 	</ui:style>
-	<g:HTMLPanel ui:field="container">
+	<g:FlowPanel ui:field="container">
 	<pjs:Processing ui:field="processing"></pjs:Processing>
-	</g:HTMLPanel>
+	<g:PopupPanel ui:field = "description_popup" animationEnabled = "true" addStyleNames='{style.popupPanel}'>
+	   <g:HTMLPanel>
+	   	   <table cellspacing="1" cellpadding="2" width="100%" colspan="2" >
+	   	   	<tr colspan="2" >
+	   	   	<td colspan="2" align="left" class="{style.popupNameRow}" >
+	   	   		Gene Model: <span ui:field="name_label" ></span>
+	   	   	</td>
+	   	   	</tr>
+	   	   	<tr class="{style.popupRowEven}">
+	   	   		<th align="left">Position:</th>
+	   	   		<td>
+	   	   			<g:Label ui:field="position_label"></g:Label>
+	   	   		</td>
+	   	   	</tr>
+	   	   	<tr >
+	   	   		<th align="left" valign="top">Description:</th>
+	   	   		<td><g:Label ui:field="description_label"></g:Label></td>
+	   	   	</tr>
+	   	   </table>
+	   </g:HTMLPanel>
+	</g:PopupPanel>
+	</g:FlowPanel>
+	
 </ui:UiBinder> 

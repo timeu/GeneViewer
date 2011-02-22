@@ -4,6 +4,7 @@ String data_raw = null;
 GenomeBrowser browser = null;
 Layout layout = null;
 
+
 var eventHandler = {};
  
 void setup()
@@ -13,7 +14,7 @@ void setup()
    background(255)
    smooth();
    layout = new Layout(width,height);
-   browser = new GenomeBrowser("Chr1");
+   browser = new GenomeBrowser("");
    noLoop();
 }
 
@@ -45,6 +46,10 @@ void api_setLength(int length)
   	draw();
 }
  
+void api_setChromosome(String chr)
+{
+	browser.chr = chr;
+}
 
 int api_getLength()
 {
@@ -175,6 +180,11 @@ class Layout
    // length of genome browser in bp
    int length = 300000;
    
+   //color settings
+   int highlightedGeneColor= #007EFF;
+   //#FFCC00;
+   int selectionLineColor = #007EFF;
+   
    //int marginLeft = 26;
    //int marginRight = 5;
    int marginLeft = 0;
@@ -211,7 +221,7 @@ class Layout
    
    int maximumZoomToDrawFeatures = 100000;
    
-   
+   boolean isZoomUpdating = false;
    
    int laneCount = 0;
    int laneSize = 0;
@@ -273,7 +283,6 @@ class Layout
    void getFreeLane(x)  {
        for (int i = 0;i<laneCount;i++)
        {
-       		
        		if (lanes[i] < x)
        			return i;
        }
@@ -298,6 +307,14 @@ class Layout
    		return area.y + laneMarginTop + (lane*laneSize);
    }
    
+   int getLaneFromYPos(int y_px) {
+   	   return round((y_px - area.y - laneMarginTop)/laneSize)
+   }
+   
+   int getLowerLanePosY(int lane) {
+       int y_pos = getLanePosY(lane+1);
+       return y_pos + utrHeight;
+   }
 
    PVector[] getPositions(int start, int end,String type,int lane)
    {
@@ -435,11 +452,6 @@ class Layout
       if (direction > 0) 
          moveRatio = 0 - moveRatio;
          
-      /*println("Move Zoom Window");
-       println("Ratio:"+moveRatio);
-      println("zoomstart:"+zoomStart);
-      println("zoomend:"+zoomEnd);
-      println("length:"+length);*/
       if (zoomStart + moveRatio < 0)
          moveRatio = -1*zoomStart;
       if (zoomEnd + moveRatio > length)
@@ -476,18 +488,36 @@ class Layout
    {
        return zoomEnd - zoomStart;
    }
+   
+   boolean isDrawFeatureZoomLevel() {
+   	  if (layout.maximumZoomToDrawFeatures == -1 || layout.getZoomLength() <= layout.maximumZoomToDrawFeatures)
+   	      return true;
+   	  return false;
+   }
+   
+   boolean checkSelectionLineInRange(int start, int end)
+   {
+   		if (mousePositionX != -1) 
+        {
+        	int selectionLinePos = layout.getGenomePositionFromMouse();
+        	if (selectionLinePos >= start && selectionLinePos <= end)
+        	   return true;
+   		}
+   		return false;
+   }	
 }
 
 
 
 class GenomeBrowser
 {
-   String name;
+   String chr;
    ArrayList genes = null; 
+   Gene highlightGene = null;
    
-   GenomeBrowser(String name)
+   GenomeBrowser(String chr)
    {
-       this.name = name;
+       this.chr = chr;
    }
 
    void render()
@@ -545,9 +575,9 @@ class GenomeBrowser
           else if (layout.mousePositionX > layout.area.getEndPosX())
              layout.mousePositionX = layout.area.getEndPosX();
              
-          stroke(0, 126, 255);
+          stroke(layout.selectionLineColor);
           line(layout.mousePositionX+0.5,layout.area.y,layout.mousePositionX+0.5,layout.area.height);
-          fill(0, 126, 255);
+          fill(layout.selectionLineColor);
           String Position =  layout.getGenomePositionFromMouse();
           if ((layout.mousePositionX + textWidth(Position) < layout.area.getEndPosX()))
               textAlign(LEFT,TOP);
@@ -595,9 +625,20 @@ class GenomeBrowser
        layout.resetLanes();
    }
    
-   String getGenesFromPosition(int position)
+   Gene getGeneFromPosition(int position,int lane)
    {
-       return "Has to be implemented";
+       if (genes != null)
+       {
+            for (int i = 0;i<genes.size();i++)
+            {
+                Gene gene = genes.get(i);
+                if (gene.lane == lane && gene.start <= position && gene.end >= position)
+                {
+                	return gene;
+                } 
+            }
+        }
+        return null;
    }
    
    void loadGeneData(String raw_data)
@@ -650,54 +691,68 @@ class Gene
 	      lane = layout.getFreeLane(start_x);
 	      layout.lanes[lane] = end_x;
 	  }
-      renderGeneLine();
+	  
+	  boolean isSelectionLineInRange = layout.checkSelectionLineInRange(start, end);
+	  
+      renderGeneLine(isSelectionLineInRange);
       
       
-      if (layout.maximumZoomToDrawFeatures == -1 || layout.getZoomLength() <= layout.maximumZoomToDrawFeatures)
+      if (layout.isDrawFeatureZoomLevel())
       {
 	      for (int i = 0;i<utrs.size();i++)
 	      {
 	          UTR utr = utrs.get(i);
-	          utr.render(lane);
+	          utr.render(lane,isSelectionLineInRange);
 	      }
 	      for (int i = 0;i<cds.size();i++)
 	      {
 	          CDS cdsItem = cds.get(i);
-	          cdsItem.render(lane);
+	          cdsItem.render(lane,isSelectionLineInRange);
 	      }
 	  }
-      renderStrandArrow();
-      renderName();
+      renderStrandArrow(isSelectionLineInRange);
+      renderName(isSelectionLineInRange);
       
    }
    
    
-   void renderName()
+   void renderName(boolean isSelectionLineInRange)
    {
-       if (layout.getZoomLength() > layout.maximumZoomToDrawFeatures)
+       if (!layout.isDrawFeatureZoomLevel())
            return;
        PVector[] positions = layout.getPositions(start,end,"text",lane);
        PVector startPosition = (PVector)positions[0];
-       fill(0, 126, 255);
+       int color = layout.selectionLineColor 
        textAlign(LEFT,TOP);
+       if (isSelectionLineInRange)
+       	  color = #FF0000;
+       fill(color);
        if (startPosition.x > 0)
        {
           text(name,startPosition.x,startPosition.y);
        }
+       
    }
-   void renderGeneLine()
+   void renderGeneLine(boolean isSelectionLineInRange)
    {
         PVector[] positions = layout.getPositions(start,end,"line",lane);
         PVector startPosition = (PVector)positions[0];
         PVector endPosition = (PVector)positions[1];
-        stroke(0);
+        
+        int strokeColor = 0;
+       
+        if (isSelectionLineInRange && !layout.isDrawFeatureZoomLevel()) 
+       	    strokeColor = layout.highlightedGeneColor;
+        
+        stroke(strokeColor);
         strokeWeight(layout.geneLineWeight);
         strokeCap(SQUARE);
         line(startPosition.x,startPosition.y+0.5,endPosition.x,endPosition.y+0.5);
         strokeWeight(1);
+        stroke(0);
    }
    
-   void renderStrandArrow()
+   void renderStrandArrow(boolean isSelectionLineInRange)
    {
          float pos;
          if (strand == "+")
@@ -706,8 +761,12 @@ class Gene
              pos = start;
          PVector[] positions = layout.getStrandArrowPositions(pos,strand,lane);
          //println(positions);
-         fill(100);
+         int fillColor = 100;
+         if (isSelectionLineInRange && !layout.isDrawFeatureZoomLevel())
+         	fillColor = layout.highlightedGeneColor; 
+         fill(fillColor);
          triangle(positions[0].x,positions[0].y,positions[1].x,positions[1].y,positions[3].x,positions[3].y);
+         fill(0);
    }
    
 }
@@ -733,16 +792,26 @@ class UTR extends GeneFeature
   {
      super(start,end);
   }
-  void render(int lane)
+  void render(int lane,boolean isSelectionLineInRange)
   {
        PVector[] positions = layout.getPositions(start,end,"utr",lane);
        PVector startPosition = (PVector)positions[0];
        PVector endPosition = (PVector)positions[1];
        fill(c);
+       noStroke();
+       if (isSelectionLineInRange) 
+       {
+       	   if (layout.checkSelectionLineInRange(start,end)) 
+       	   {
+       	   	   stroke(layout.highlightedGeneColor);
+       	   	   strokeWeight(2);
+       	   }
+       }
        strokeCap(SQUARE);
        rectMode(CORNERS);
-       noStroke();
        rect(startPosition.x,startPosition.y,endPosition.x,endPosition.y);
+       noStroke();
+       strokeWeight(1);
    }
   
 }
@@ -773,16 +842,26 @@ class CDS extends GeneFeature
        c = #FF8100;
     }
     
-   void render(int lane)
+   void render(int lane,boolean isSelectionLineInRange)
    {
        PVector[] positions = layout.getPositions(start,end,"cds",lane);
        PVector startPosition = (PVector)positions[0];
        PVector endPosition = (PVector)positions[1];
+       noStroke();
+       if (isSelectionLineInRange) 
+       {
+       	   if (layout.checkSelectionLineInRange(start,end)) 
+       	   {
+       	   	   stroke(layout.highlightedGeneColor);
+       	   	   strokeWeight(2);
+       	   }
+       }
        fill(c);
        strokeCap(SQUARE);
        rectMode(CORNERS);
-       noStroke();
        rect(startPosition.x,startPosition.y,endPosition.x,endPosition.y);
+       noStroke();
+       strokeWeight(1);
    }
 }
 
@@ -791,22 +870,45 @@ class CDS extends GeneFeature
 void mouseMoved() {
    layout.mousePositionX = mouseX;
    layout.mousePositionY = mouseY;
-   
-   int position = layout.getGenomePositionFromMouse();
-   //int position = 100;
-   String gene = browser.getGenesFromPosition(100);
-   draw();
-   if (eventHandler['mouseMoveEvent'] != null)
-       eventHandler['mouseMoveEvent'](position,gene);
-       
+   if (!layout.isZoomUpdating)
+   {
+	   int position = layout.getGenomePositionFromMouse();
+	   boolean isUnhighlight = false;
+	   boolean isHighlight = false;
+	   Gene gene = browser.getGeneFromPosition(position,layout.getLaneFromYPos(mouseY));
+	   
+	   if (gene == null && browser.highlightGene!= null)
+	   {
+	       isUnhighlight = true;
+	   }
+	   else if (gene != null && gene != browser.highlightGene)
+	   {
+	   	   isHighlight = true;
+	   }
+	   
+	   browser.highlightGene = gene;
+	     
+	   if (eventHandler['mouseMoveEvent'] != null)
+	       eventHandler['mouseMoveEvent'](position);
+	   if (eventHandler['highlightGeneEvent'] != null && isHighlight && browser.highlightGene != null)
+	   {
+	   	   eventHandler['highlightGeneEvent'](browser.highlightGene,browser.chr,layout.mousePositionX,layout.getLowerLanePosY(gene.lane));
+	   }
+	   
+	   if (eventHandler['unhighlightGeneEvent'] != null && isUnhighlight)
+	   {
+	   	   eventHandler['unhighlightGeneEvent']();
+	   }
+   }
+   draw();  
 }
 
 void mouseDragged() {
-  if (layout.mouseButtonPressed == -1)
-     layout.mouseButtonPressed = mouseButton;
-  if (layout.mouseButtonPressedX == -1)
-     layout.mouseButtonPressedX = mouseX;
   layout.mousePositionX = mouseX;
+  if (layout.mousePositionX != layout.mouseButtonPressed)
+  {
+  	  layout.isZoomUpdating = true;
+  }
   if (mouseButton == RIGHT)
   {
      layout.moveZoomWindow(mouseX - layout.mouseButtonPressedX);
@@ -814,19 +916,28 @@ void mouseDragged() {
        	  eventHandler['zoomResizeEvent'](layout.zoomStart,layout.zoomEnd);
   }
   draw();
-  
 }
 
 void mouseReleased()
 {
    boolean isZoomResized = false; 
-   if (layout.mouseButtonPressed == LEFT)
+   if (layout.mouseButtonPressed == LEFT && layout.isZoomUpdating)
    {
        layout.calculateZoom();
        isZoomResized = true;
    }
+   else if (layout.mouseButtonPressed == LEFT) 
+   {
+        int position = layout.getGenomePositionFromMouse();
+   		Gene gene = browser.getGeneFromPosition(position,layout.getLaneFromYPos(mouseY));
+   		if (gene != null && eventHandler['clickGeneEvent'] != null)
+   		{
+   		    eventHandler['clickGeneEvent'](gene,browser.chr);
+   		 }
+   }
    layout.mouseButtonPressed = -1;
    layout.mouseButtonPressedX = -1;
+   layout.isZoomUpdating = false;
    draw();
    if (isZoomResized)
    {
@@ -843,6 +954,11 @@ void mousePressed()
         draw();
         if (eventHandler['zoomResizeEvent'] != null)
        	  eventHandler['zoomResizeEvent'](layout.zoomStart,layout.zoomEnd);
+    }
+    else 
+    {
+    	layout.mouseButtonPressed = mouseButton;
+    	layout.mouseButtonPressedX = mouseX;
     }
 }
 
