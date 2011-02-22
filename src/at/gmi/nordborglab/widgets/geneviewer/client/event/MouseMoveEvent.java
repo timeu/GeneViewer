@@ -36,6 +36,4 @@ public class MouseMoveEvent extends GwtEvent<MouseMoveHandler> {
 	protected void dispatch(MouseMoveHandler handler) {
 		handler.onMoveMove(this);
 	}
-	
-	
 }
