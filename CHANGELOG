@@ -1,4 +1,4 @@
-February 23, 2011 - Release 0.2.0
+February 23, 2011 - Release 0.2.1
 	* PJS: Bugfix: Functionality to reset zoom (middle mouse click) was moved to from the mousePressed() to the mouseReleased() function
 	               resetting zoom in mousePressed() function can cause problems in Chrome (when the middle mouse is clicked and zoom is reset
 	               processing doesn't properly reset call the mouseMoved() function but the mouseDragged() instead. This happens only if the the 
