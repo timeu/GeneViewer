@@ -935,6 +935,11 @@ void mouseReleased()
    		    eventHandler['clickGeneEvent'](gene,browser.chr);
    		 }
    }
+   else if (layout.mouseButtonPressed == CENTER) 
+   {
+	    layout.resetZoom();
+	    isZoomResized = true;
+   }
    layout.mouseButtonPressed = -1;
    layout.mouseButtonPressedX = -1;
    layout.isZoomUpdating = false;
@@ -948,18 +953,8 @@ void mouseReleased()
 
 void mousePressed()
 {
-    if (mouseButton == CENTER)
-    {
-        layout.resetZoom();
-        draw();
-        if (eventHandler['zoomResizeEvent'] != null)
-       	  eventHandler['zoomResizeEvent'](layout.zoomStart,layout.zoomEnd);
-    }
-    else 
-    {
-    	layout.mouseButtonPressed = mouseButton;
-    	layout.mouseButtonPressedX = mouseX;
-    }
+   	layout.mouseButtonPressed = mouseButton;
+   	layout.mouseButtonPressedX = mouseX;
 }
 
 
