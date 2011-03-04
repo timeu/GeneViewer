@@ -112,4 +112,20 @@ public class GeneViewerInstance extends ProcessingInstance{
 	public final native void setChromosome(String chromosome) /*-{
 		this.api_setChromosome(chromosome);
 	}-*/;
+
+	public final native void setViewRegion(int viewStart, int viewEnd) /*-{
+		this.api_setViewRegion(viewStart,viewEnd);
+	}-*/;
+	
+	public final native int getViewStart() /*-{
+		return this.api_getViewStart();
+	}-*/;
+	
+	public final native int getViewEnd() /*-{
+		return this.api_getViewEnd();
+	}-*/;
+	
+	public final native void redraw(boolean isFetchGenes) /*-{
+		this.api_redraw(isFetchGenes);
+	}-*/;
 }
