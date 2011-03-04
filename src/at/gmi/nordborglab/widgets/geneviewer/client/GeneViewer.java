@@ -41,6 +41,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -53,7 +54,7 @@ import com.processingjs.client.Processing;
 
 public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZoomResizeHandlers,HasHandlers, 
 								HasFetchGenesHandlers,FetchGeneHandler, HasHighlightGeneHandlers, 
-								HasUnhighlightGeneHandlers,HasClickGeneHandlers,HighlightGeneHandler,UnhighlightGeneHandler{
+								HasUnhighlightGeneHandlers,HasClickGeneHandlers,HighlightGeneHandler,UnhighlightGeneHandler,ClickGeneHandler{
 	
 	interface Resources extends ClientBundle
 	{
@@ -69,12 +70,13 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	}
 	
 	protected boolean fetchGenes = true;
-	protected int length = 30000;
+	protected int viewStart = 0;
+	protected int viewEnd = 0;
 	protected String chromosome;
 	protected DataSource datasource;
 	protected boolean isShowDescription = true;
-	
 	protected HashMap<String, String> descriptions = new HashMap<String, String>();
+	protected String geneInfoUrl = null;
 
 	@UiField Processing<GeneViewerInstance> processing;
 	@UiField FlowPanel container;
@@ -103,13 +105,22 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	}
 	
 	public void setLength(int length) {
-		this.length = length;
+		this.viewStart = 0;
+		this.viewEnd = length;
+	}
+	
+	public void setViewRegion(int start, int end) {
+		this.viewStart = start;
+		this.viewEnd = end;
 	}
 	
 	public void setIsShowDescription(boolean isShowDescription) {
 		this.isShowDescription = isShowDescription; 
 	}
 	
+	public void setGeneInfoUrl(String geneInfoUrl) {
+		this.geneInfoUrl = geneInfoUrl;
+	}
 	
 	
 	public void setChromosome(String chromosome) {
@@ -144,12 +155,16 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 			public void run() {
 				if (!processing.isLoaded())
 					return;
-				processing.getInstance().setLength(length);
+				processing.getInstance().setViewRegion(viewStart,viewEnd);
 				processing.getInstance().setChromosome(chromosome);
 				addFetchGeneHandler(GeneViewer.this);
 				if (isShowDescription) {
 					addHighlightGeneHandler(GeneViewer.this);
 					addUnhighlightGeneHandlers(GeneViewer.this);
+				}
+				if (geneInfoUrl != null)
+				{
+					addClickGeneHandler(GeneViewer.this);
 				}
 				if (onLoad != null)
 					onLoad.run();
@@ -295,5 +310,16 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	@Override
 	public void onUnhighlightGene(UnhighlightGeneEvent event) {
 		description_popup.hide();
+	}
+	
+	public void redraw(boolean isFetchGenes)  {
+		processing.getInstance().redraw(isFetchGenes);
+	}
+
+
+	@Override
+	public void onClickGene(ClickGeneEvent event) {
+		if (geneInfoUrl != null && !geneInfoUrl.isEmpty())
+			Window.open(geneInfoUrl.replace("{0}", event.getGene().getName()),"",""); 
 	}
 }
