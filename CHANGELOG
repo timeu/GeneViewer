@@ -1,8 +1,16 @@
+March 4, 2011 - Release 0.2.2
+   * PJS (Bugfix) : The length of the gene-name is included in the calculation of free-lanes for rendering genes. This avoids overlapping gene-names. 
+   * PJS (Feature): Length is replaced by view-region. Previous to this version the default view-region was always from 0 to length. 
+                    It's now possible to set an arbitrary view-region. Resetting the zoom will set the zoom to the view-region. 
+   * GWT (Feature): Length is replaced by view-region. 
+   * GWT (Feature): It's possible to set a geneInfoUrl. In case it is set and a user clicks on a gene a new browser window with the url will be opened.
+                    The URL is expected to have a "{0}" placeholder which is replaced with the clicked gene-name (i.e. http://www.ncbi.nlm.nih.gov/sites/entrez?cmd=search&db=gene&term={0})
+   
 February 23, 2011 - Release 0.2.1
-	* PJS: Bugfix: Functionality to reset zoom (middle mouse click) was moved to from the mousePressed() to the mouseReleased() function
-	               resetting zoom in mousePressed() function can cause problems in Chrome (when the middle mouse is clicked and zoom is reset
-	               processing doesn't properly reset call the mouseMoved() function but the mouseDragged() instead. This happens only if the the 
-	               zoomResizeEvent is called and in the zoomResizeEvent the GeneViewer is hidden/detached from the DOM) 
+	* PJS (Bugfix): Functionality to reset zoom (middle mouse click) was moved to from the mousePressed() to the mouseReleased() function
+	                resetting zoom in mousePressed() function can cause problems in Chrome (when the middle mouse is clicked and zoom is reset
+	                processing doesn't properly reset call the mouseMoved() function but the mouseDragged() instead. This happens only if the the 
+	                zoomResizeEvent is called and in the zoomResizeEvent the GeneViewer is hidden/detached from the DOM) 
 
 February 22, 2011 - Release 0.2.0
     
