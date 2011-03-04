@@ -39,11 +39,18 @@ void api_clearEventHandlers()
    eventHandler = {};
 }
 
+void api_setViewRegion(int start, int end)
+{
+	if (end - start > 0)
+	{
+		layout.setViewRegion(start,end);
+		draw();
+	}
+}
+
 void api_setLength(int length)
 {
-  if (length > 0)
-  	layout.setLength(length);
-  	draw();
+  api_setViewRegion(0,length);
 }
  
 void api_setChromosome(String chr)
@@ -53,7 +60,7 @@ void api_setChromosome(String chr)
 
 int api_getLength()
 {
-    return layout.length;
+    return layout.getViewLength();
 }
 
 int api_getZoomStart(){
@@ -62,6 +69,14 @@ int api_getZoomStart(){
 
 int api_getZoomEnd() {
     return layout.zoomEnd;
+}
+
+int api_getViewStart() {
+   return layout.viewStart;
+}
+
+int api_getViewEnd() {
+	return layout.viewEnd;
 }
 
 int api_getMaximumZoomToDraw() {
@@ -101,6 +116,13 @@ void api_hideSelectionLine()
 void api_setSelectionLinePx(int position_px)
 {
      layout.mousePositionX = position_px;
+}
+
+void api_redraw(boolean isFetchGenes) {
+     if (isFetchGenes)
+     	layout.fetchGenes();
+     else
+     	draw();
 }
 
 void api_setGeneData(geneData)
@@ -175,10 +197,13 @@ class Layout
    // start of zoom area in bp
    int zoomStart = 0;
    // end of zoom area in bp
-   int zoomEnd = 300000;
+   int zoomEnd = 0;
    
-   // length of genome browser in bp
-   int length = 300000;
+   int viewStart = 0;
+   
+   int viewEnd = 0;
+   
+   
    
    //color settings
    int highlightedGeneColor= #007EFF;
@@ -235,7 +260,7 @@ class Layout
    
    Layout(int width,int height)
    {
-       zoomEnd = length;
+       zoomEnd = viewEnd;
        this.width = width;
        this.height = height;
        initArea();
@@ -245,7 +270,10 @@ class Layout
    
    void initLanes()
    {
-       laneSize = cdsHeight*2;
+   	   int scale = 2;
+   	   if (getZoomLength() <= maximumZoomToDrawFeatures)
+   	      scale = 3;
+       laneSize = cdsHeight*scale;
    	   laneCount = floor((this.area.height-laneMarginTop) / laneSize);
    	   lanes = new int[laneCount];
    	   resetLanes();
@@ -264,20 +292,25 @@ class Layout
         this.area = new DrawArea(marginLeft,marginTop,(width - marginLeft - marginRight),(height - marginTop - marginBottom));
    }
    
-   void setLength(length)
+   void setViewRegion(int start, int end)
    {
-       mustUpdateZoom = false;
-       if ((zoomStart == 0 && zoomEnd == this.length) || this.length < length)
-          mustUpdateZoom = true;
-       this.length = length;
-       if (mustUpdateZoom)
-           zoomEnd = length;
+       if (zoomStart == 0)
+       	   zoomStart = start;
+   	   else if (zoomStart < start)
+   	       zoomStart = start;
+   	   if (zoomEnd == 0)
+   	       zoomEnd = end;
+   	   else if (zoomEnd > end)
+   	       zoomEnd = end;
+       viewStart = start;
+       viewEnd = end;
        initPxPerBb();
    }
 
    void initPxPerBb()
    {
-       this.pxPerBp  = (float)this.area.width / (this.zoomEnd - this.zoomStart);
+       if (this.zoomEnd - this.zoomStart != 0)
+       	  this.pxPerBp  = (float)this.area.width / (this.zoomEnd - this.zoomStart);
    }
    
    void getFreeLane(x)  {
@@ -305,6 +338,11 @@ class Layout
    int getLanePosY(int lane)
    {
    		return area.y + laneMarginTop + (lane*laneSize);
+   }
+   
+   int getViewLength() 
+   {
+      return viewEnd - viewStart;
    }
    
    int getLaneFromYPos(int y_px) {
@@ -409,6 +447,10 @@ class Layout
          end = start;
          start = end_tmp;
       }
+      if (start < viewStart)
+      	  start = viewStart;
+      if (end > viewEnd)
+         end = viewEnd;
       zoomStart = start;
       zoomEnd = end;
       initPxPerBb();
@@ -452,11 +494,11 @@ class Layout
       if (direction > 0) 
          moveRatio = 0 - moveRatio;
          
-      if (zoomStart + moveRatio < 0)
+      if (zoomStart + moveRatio < viewStart)
          moveRatio = -1*zoomStart;
-      if (zoomEnd + moveRatio > length)
-         moveRatio = length - zoomEnd;
-      if ((zoomStart + moveRatio) >= 0 && (moveRatio + zoomStart <= length))
+      if (zoomEnd + moveRatio > viewEnd)
+         moveRatio = viewEnd - zoomEnd;
+      if ((zoomStart + moveRatio) >= viewStart && (moveRatio + zoomStart <= viewEnd))
       {
         zoomStart = zoomStart + moveRatio;
         zoomEnd = zoomEnd + moveRatio;
@@ -478,8 +520,8 @@ class Layout
    
    void resetZoom()
    {
-      zoomStart = 0;
-      zoomEnd = length;
+      zoomStart = viewStart;
+      zoomEnd = viewEnd;
       initPxPerBb();
       browser.setGenes(new ArrayList());
       fetchGenes();
@@ -622,7 +664,7 @@ class GenomeBrowser
    void setGenes(ArrayList genes)
    {
        this.genes = genes;
-       layout.resetLanes();
+       layout.initLanes();
    }
    
    Gene getGeneFromPosition(int position,int lane)
@@ -683,8 +725,12 @@ class Gene
           start_x = start_x - layout.cdsHeight;
       else 
           end_x = vector.y + layout.cdsHeight
-          
-      //println(end_x);
+      
+      if (layout.isDrawFeatureZoomLevel() && (vector.x + textWidth(name)) > end_x)
+      {
+       	 end_x = vector.x + textWidth(name);
+      }
+      
       // get Lane
       if (lane == -1)
       {
@@ -956,6 +1002,7 @@ void mousePressed()
    	layout.mouseButtonPressed = mouseButton;
    	layout.mouseButtonPressedX = mouseX;
 }
+
 
 
 
