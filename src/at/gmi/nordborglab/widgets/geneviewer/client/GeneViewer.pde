@@ -1,4 +1,4 @@
-
+/* @pjs transparent="true"; */  
 int fps = 1;
 String data_raw = null;
 GenomeBrowser browser = null;
@@ -9,9 +9,7 @@ var eventHandler = {};
  
 void setup()
 {
-   //size(1000,200);
    frameRate(fps);
-   background(255)
    smooth();
    layout = new Layout(width,height);
    browser = new GenomeBrowser("");
@@ -22,11 +20,17 @@ void setup()
 void draw()
 {
     background(255)
+    background(0,0,0,0);
     browser.render();     
 }
 
 
 // API for access via javascript
+
+void api_setSize(int width,int height) {
+    size(width,height);
+    layout.setSize(width,height);
+}
 
 void api_addEventHandler(String handler,callback)
 {
@@ -258,10 +262,14 @@ class Layout
    
    
    
-   Layout(int width,int height)
+   Layout(width,height)
    {
        zoomEnd = viewEnd;
-       this.width = width;
+       setSize(width,height);
+   }
+   
+   void setSize(int width,int height) {
+   	   this.width = width;
        this.height = height;
        initArea();
        initPxPerBb();
@@ -911,7 +919,12 @@ class CDS extends GeneFeature
    }
 }
 
-
+void mouseOut() {
+   if (eventHandler['unhighlightGeneEvent'] != null)
+   {
+   	   eventHandler['unhighlightGeneEvent']();
+   }
+}
 	
 void mouseMoved() {
    layout.mousePositionX = mouseX;

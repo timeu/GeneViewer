@@ -72,6 +72,8 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	protected boolean fetchGenes = true;
 	protected int viewStart = 0;
 	protected int viewEnd = 0;
+	protected int width = 1000;
+	protected int height = 200;
 	protected String chromosome;
 	protected DataSource datasource;
 	protected boolean isShowDescription = true;
@@ -95,9 +97,8 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	
 	public void setSize(Integer width,Integer height)
 	{
-		Element elem = processing.getElement();
-		DOM.setElementAttribute(elem, "width", width.toString());
-		DOM.setElementAttribute(elem, "height", height.toString());
+		this.width= width;
+		this.height = height;
 	}
 	
 	public void setDataSource(DataSource datasource) {
@@ -112,6 +113,9 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	public void setViewRegion(int start, int end) {
 		this.viewStart = start;
 		this.viewEnd = end;
+		if (processing.isLoaded()) {
+			processing.getInstance().setViewRegion(start, end);
+		}
 	}
 	
 	public void setIsShowDescription(boolean isShowDescription) {
@@ -155,6 +159,7 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 			public void run() {
 				if (!processing.isLoaded())
 					return;
+				processing.getInstance().setSize(width,height);
 				processing.getInstance().setViewRegion(viewStart,viewEnd);
 				processing.getInstance().setChromosome(chromosome);
 				addFetchGeneHandler(GeneViewer.this);

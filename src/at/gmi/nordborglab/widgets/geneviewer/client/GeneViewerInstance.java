@@ -128,4 +128,8 @@ public class GeneViewerInstance extends ProcessingInstance{
 	public final native void redraw(boolean isFetchGenes) /*-{
 		this.api_redraw(isFetchGenes);
 	}-*/;
+
+	public final native void setSize(int width, int height) /*-{
+		this.api_setSize(width,height);
+	}-*/;
 }
