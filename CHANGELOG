@@ -1,3 +1,10 @@
+June 15, 2011 - Release 0.2.3
+   * PJS (Update):  New Version of the Processing GWT Wrapper (0.2.0) added. Contains new Processing.js library (1.2.1)
+   * PJS (Bugfix):  By default use transparent canvas background
+   * GWT (Bugfix):  Set the correct viewRegion 
+   * GWT (Bugfix):  Set size of sketch explictly (required by new Processingjs library)
+   * GWT (Bugfix):  build.xml file modified so that clean is called before build and release
+
 March 4, 2011 - Release 0.2.2
    * PJS (Bugfix) : The length of the gene-name is included in the calculation of free-lanes for rendering genes. This avoids overlapping gene-names. 
    * PJS (Feature): Length is replaced by view-region. Previous to this version the default view-region was always from 0 to length. 
