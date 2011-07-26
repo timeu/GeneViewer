@@ -17,9 +17,7 @@ class ChromosomeData(object):
         self.__featureNCList = trackData['featureNCList']
         self.__sublistIndex = trackData['sublistIndex']
         self.__lazyIndex = trackData['lazyIndex']
-        self.__subFeatureArray = trackData['subfeatureArray']
         self.__lazyFeatureFile = self.__data_folder + '/' + re.sub('{chunk}','%s',trackData['lazyfeatureUrlTemplate'])
-        self.__subFeatureFile = self.__data_folder+'/'+self.__subFeatureArray['urlTemplate'].replace('{chunk}','%s')
 
     def getGenes(self,start,end,getFeatures=True):
         genes = []
@@ -45,38 +43,13 @@ class ChromosomeData(object):
     
     def _getGeneFeaturesForGene(self,gene,getFeatures=True):
         stripped_gene = gene[0:4]
-        stripped_gene.append([])
-        if gene[4] != None and getFeatures:
-            for subFeature in gene[4]:
-                stripped_gene[4].append(self._getGeneFeaturesFromPos(subFeature,subFeature))
+        if gene[self.__sublistIndex-1] != None and getFeatures:
+            stripped_gene.append(gene[self.__sublistIndex-1])
+        else:
+            stripped_gene.append([])
         return stripped_gene
     
-    def _getGeneFeaturesFromPos(self,start,end):
-        import math
-        features = []
-        start = max([0,start])
-        end = min([end,self.__subFeatureArray['length']])
-        firstChunk = int(math.floor(start / self.__subFeatureArray['chunkSize']))
-        lastChunk = int(math.floor(end / self.__subFeatureArray['chunkSize']))
-
-        for chunk in range(firstChunk,lastChunk+1):
-            if not chunk in self.__lazyArrayChunks:
-                fp = open(self.__subFeatureFile % chunk)
-                lazyFeatures = simplejson.load(fp)
-                fp.close()
-                self.__lazyArrayChunks[chunk] = lazyFeatures
-            features+=self._getGeneFeaturesFromChunk(chunk,start,end)
-        return features
     
-    def _getGeneFeaturesFromChunk(self,chunk,start,end):
-        features = []
-        chunkSize = self.__subFeatureArray['chunkSize']
-        firstIndex = chunk*chunkSize
-        chunkStart = max([start - firstIndex,0])
-        chunkEnd = min([end - firstIndex,chunkSize-1])
-        for i in range(chunkStart,chunkEnd+1):
-            features+=self.__lazyArrayChunks[chunk][i]
-        return features
     
     @classmethod
     def _binary_search(cls,arr, item, low=-1, high=None,index =1):
@@ -118,10 +91,11 @@ class DataSource(object):
     
     
     def __initChromocomeSources(self,fname):
-        fp = open(self.__getChromosomeTrackFolder(fname)+'trackData.json')
+        track_folder = self.__getChromosomeTrackFolder(fname)
+        fp = open(track_folder+'trackData.json')
         trackData = simplejson.load(fp)
         fp.close()
-        self.__chromosomeSources[fname] = ChromosomeData(self.__jbrowse_tracks_folder,trackData)
+        self.__chromosomeSources[fname] = ChromosomeData(track_folder,trackData)
     
     def __getChromosomeTrackFolder(self,chromosome):
         return self.__jbrowse_tracks_folder + '/data/tracks/%s/%s/' % (chromosome,self.__track_key)
