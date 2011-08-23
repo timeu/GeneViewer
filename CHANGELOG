@@ -1,3 +1,6 @@
+August 23, 2011 - Release 0.2.4
+   * PJS (Update):  New Version of the Processing GWT Wrapper (0.3.0) added. Contains new Processing.js library (1.2.3) 
+
 June 15, 2011 - Release 0.2.3
    * PJS (Update):  New Version of the Processing GWT Wrapper (0.2.0) added. Contains new Processing.js library (1.2.1)
    * PJS (Bugfix):  By default use transparent canvas background
