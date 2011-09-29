@@ -1,0 +1,9 @@
+
+bin/flatfile-to-json.pl 
+	  --gff TAIRXX_GFF3_genes.gff  
+	  --cssclass transcript 
+	  --subfeatureClasses '{"CDS": "transcript-CDS","five_prime_UTR": "transcript-five_prime_UTR","three_prime_UTR":"transcript-three_prime_UTR"}' 
+	  --arrowheadClass transcript-arrowhead 
+	  --tracklabel TAIR10 
+	  --type "mRNA" 
+	  --getSubs
