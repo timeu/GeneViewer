@@ -20,7 +20,7 @@
 	   	}
 	</ui:style>
 	<g:FlowPanel ui:field="container">
-	<pjs:Processing ui:field="processing"></pjs:Processing>
+		<pjs:Processing ui:field="processing"></pjs:Processing>
 	<g:PopupPanel ui:field = "description_popup" animationEnabled = "true" addStyleNames='{style.popupPanel}'>
 	   <g:HTMLPanel>
 	   	   <table cellspacing="1" cellpadding="2" width="100%" colspan="2" >
