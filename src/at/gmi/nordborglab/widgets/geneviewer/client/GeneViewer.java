@@ -43,18 +43,23 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.ProvidesResize;
+import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
+import com.google.gwt.user.client.ui.ResizeComposite;
 import com.google.gwt.user.client.ui.Widget;
 import com.processingjs.client.Processing;
 
 
 public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZoomResizeHandlers,HasHandlers, 
 								HasFetchGenesHandlers,FetchGeneHandler, HasHighlightGeneHandlers, 
-								HasUnhighlightGeneHandlers,HasClickGeneHandlers,HighlightGeneHandler,UnhighlightGeneHandler,ClickGeneHandler{
+								HasUnhighlightGeneHandlers,HasClickGeneHandlers,HighlightGeneHandler,UnhighlightGeneHandler,ClickGeneHandler,RequiresResize{
 	
 	interface Resources extends ClientBundle
 	{
@@ -69,22 +74,26 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	interface GeneViewerUiBinder extends UiBinder<Widget, GeneViewer> {
 	}
 	
+	public enum SHOW_RANGE_SELECTOR  {None,Bottom,Top};
+	
 	protected boolean fetchGenes = true;
+	protected boolean dynamicWidth = false;
 	protected int viewStart = 0;
 	protected int viewEnd = 0;
 	protected int width = 1000;
-	protected int height = 200;
+	protected int height = 250;
 	protected String chromosome;
 	protected DataSource datasource;
 	protected boolean isShowDescription = true;
 	protected HashMap<String, String> descriptions = new HashMap<String, String>();
 	protected String geneInfoUrl = null;
+	protected SHOW_RANGE_SELECTOR show_range_selector = SHOW_RANGE_SELECTOR.Bottom; 
 
 	@UiField Processing<GeneViewerInstance> processing;
-	@UiField FlowPanel container;
 	@UiField PopupPanel description_popup;
 	@UiField Label description_label;
 	@UiField Label position_label;
+	@UiField FlowPanel container;
 	//@UiField Label chromosome_label;
 	@UiField SpanElement name_label;
 	
@@ -97,7 +106,9 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	
 	public void setSize(Integer width,Integer height)
 	{
-		this.width= width;
+		if (!dynamicWidth) {
+			this.width= width;
+		}
 		this.height = height;
 	}
 	
@@ -111,6 +122,8 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	}
 	
 	public void setViewRegion(int start, int end) {
+		if (this.viewStart == start && this.viewEnd == end)
+			return;
 		this.viewStart = start;
 		this.viewEnd = end;
 		if (processing.isLoaded()) {
@@ -126,12 +139,20 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 		this.geneInfoUrl = geneInfoUrl;
 	}
 	
+	public void setRangeSelectorPosition(SHOW_RANGE_SELECTOR show_range_selector) {
+		this.show_range_selector = show_range_selector;
+		if (processing.isLoaded())
+			processing.getInstance().showRangeSelector(this.show_range_selector.ordinal());
+	}
+	
 	
 	public void setChromosome(String chromosome) {
 		this.chromosome = chromosome;
 	}
 	
 	public void updateZoom(Integer start,Integer end) {
+		if (processing.getInstance().getZoomStart() == start && processing.getInstance().getZoomEnd() == end)
+			return;
 		if (processing.isLoaded())
 			processing.getInstance().updateZoom(start,end);
 	}
@@ -152,6 +173,8 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 			processing.getInstance().setGeneData(geneData);
 	}
 	
+	
+	
 	public void load(final Runnable onLoad) throws ResourceException {
 		Runnable onLoadCode = new Runnable() 
 		{
@@ -159,7 +182,7 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 			public void run() {
 				if (!processing.isLoaded())
 					return;
-				processing.getInstance().setSize(width,height);
+				processing.getInstance().setLayoutSize(width,height);
 				processing.getInstance().setViewRegion(viewStart,viewEnd);
 				processing.getInstance().setChromosome(chromosome);
 				addFetchGeneHandler(GeneViewer.this);
@@ -326,5 +349,20 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	public void onClickGene(ClickGeneEvent event) {
 		if (geneInfoUrl != null && !geneInfoUrl.isEmpty())
 			Window.open(geneInfoUrl.replace("{0}", event.getGene().getName()),"",""); 
+	}
+	
+	@Override
+	public void onResize() {
+		if (!dynamicWidth)
+			return;
+		width = container.getOffsetWidth();
+		if (processing.isLoaded()) {
+			processing.getInstance().setLayoutSize(width,height);
+			processing.getInstance().redraw(false);
+		}
+	}
+	
+	public void setDynamicWidth(boolean flag) {
+		this.dynamicWidth = flag;
 	}
 }
