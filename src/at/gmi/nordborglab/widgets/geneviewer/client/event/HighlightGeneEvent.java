@@ -15,7 +15,7 @@ public class HighlightGeneEvent extends GwtEvent<HighlightGeneHandler> {
 	protected int x;
 	protected int y;
 	
-	protected HighlightGeneEvent(Gene gene,int x, int y){
+	public HighlightGeneEvent(Gene gene,int x, int y){
 		this.gene = gene;
 		this.x = x;
 		this.y = y;
