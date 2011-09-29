@@ -62,6 +62,10 @@ void api_setChromosome(String chr)
 	browser.chr = chr;
 }
 
+void api_setShowRangeSelector(int showRangeSelector) {
+    layout.setShowRangeSelector(showRangeSelector);
+}
+
 int api_getLength()
 {
     return layout.getViewLength();
@@ -239,9 +243,15 @@ class Layout
    DrawArea area = null;
    
    float pxPerBp=1; 
+   float absolutePxPerBp=1;
 
    //where to display scale (0 = no display, 1 = bottom, 2 = top)
    int showScale = 1;
+   
+   // where to display range selector (0 = no display, 1 = bottom, 2 = top)
+   int showRangeSelector = 1;
+   int rangeSelectorHeight=40;
+   int rangeSelectorGridCount = 10;
 
    // how many vertical grid lines should be drawn
    int gridLineCount = 5;
@@ -282,7 +292,7 @@ class Layout
    	   if (getZoomLength() <= maximumZoomToDrawFeatures)
    	      scale = 3;
        laneSize = cdsHeight*scale;
-   	   laneCount = floor((this.area.height-laneMarginTop) / laneSize);
+   	   laneCount = floor((this.area.height-getLaneMarginTop()) / laneSize);
    	   lanes = new int[laneCount];
    	   resetLanes();
    }
@@ -295,6 +305,12 @@ class Layout
    	   }
    }
    
+   void setShowRangeSelector(showRangeSelector) {
+   	     this.showRangeSelector = showRangeSelector; 
+   	     initLanes();
+   	     draw();
+   }
+   
    void initArea()
    {
         this.area = new DrawArea(marginLeft,marginTop,(width - marginLeft - marginRight),(height - marginTop - marginBottom));
@@ -302,7 +318,7 @@ class Layout
    
    void setViewRegion(int start, int end)
    {
-       if (zoomStart == 0)
+       /*if (zoomStart == 0)
        	   zoomStart = start;
    	   else if (zoomStart < start)
    	       zoomStart = start;
@@ -310,15 +326,21 @@ class Layout
    	       zoomEnd = end;
    	   else if (zoomEnd > end)
    	       zoomEnd = end;
+   	   */
+   	   zoomStart = start;
+   	   zoomEnd = end;
        viewStart = start;
        viewEnd = end;
        initPxPerBb();
+       fetchGenes();
    }
 
    void initPxPerBb()
    {
        if (this.zoomEnd - this.zoomStart != 0)
        	  this.pxPerBp  = (float)this.area.width / (this.zoomEnd - this.zoomStart);
+       if (this.viewEnd - this.viewStart != 0)
+          this.absolutePxPerBp = (float)this.area.width / (this.viewEnd - this.viewStart);
    }
    
    void getFreeLane(x)  {
@@ -341,6 +363,13 @@ class Layout
       	   end = zoomEnd;
 	   PVector vector = new PVector(round(layout.bpToPx(start)) + area.x,round(layout.bpToPx(end)) + area.x);
 	   return vector;
+   }
+   
+   int getLaneMarginTop() {
+       int top = laneMarginTop;
+       if (showRangeSelector != 0)
+           top = top + rangeSelectorHeight;
+       return top;
    }
    
    int getLanePosY(int lane)
@@ -425,6 +454,18 @@ class Layout
    {
        return (int)(zoomEnd - zoomStart)/gridLineCount;
    }
+   
+   int getRangeSelectorGridLineBpSeperation()
+   {
+       return (int)(viewEnd - viewStart)/rangeSelectorGridCount;
+   }
+   
+   int getRangeSelectorHeight() {
+       int currentHeight= 0;
+       if (showRangeSelector != 0)
+            currentHeight = rangeSelectorHeight;
+       return currentHeight;
+   }
 
 
    float pxToBp(float pixel)
@@ -435,6 +476,14 @@ class Layout
    float bpToPx(int bp)
    {
       return pxPerBp * bp;
+   }
+   
+   float absolutebpToPx(int bp) {
+       return absolutePxPerBp*bp;
+   }
+   
+   float absolutepxToBp(float pixel) {
+       return (float) pixel / absolutePxPerBp;
    }
    
    int getGenomePosition(int position_px )
@@ -573,6 +622,7 @@ class GenomeBrowser
    void render()
    {
         renderControls();
+        renderRangeSelector();
         if (genes != null)
         {
             for (int i = 0;i<genes.size();i++)
@@ -584,6 +634,8 @@ class GenomeBrowser
         renderZoomArea();
         renderSelectionLine();
    }
+   
+   
    
    
    void renderZoomArea()
@@ -602,7 +654,7 @@ class GenomeBrowser
                endPosition = layout.area.x;
            else if (endPosition > layout.area.getEndPosX())
                endPosition = layout.area.getEndPosX();
-           rect(startPosition,layout.area.y+10,endPosition,layout.area.getEndPosY()-layout.labelScaleSize);
+           rect(startPosition,layout.area.y+10,endPosition,layout.area.getEndPosY()-layout.labelScaleSize - layout.getRangeSelectorHeight());
            fill(100);
            String Position = round(layout.pxToBp(startPosition-layout.area.x) + layout.zoomStart);
            String zoomWidth = layout.convertToReadableBp(Math.abs(round(layout.pxToBp(startPosition-layout.area.x) - layout.pxToBp(endPosition))));
@@ -611,7 +663,7 @@ class GenomeBrowser
            else 
               textAlign(LEFT,BASELINE);
            text(Position,layout.mouseButtonPressedX,10);
-           text(zoomWidth,startPosition + Math.abs((endPosition-startPosition)/2)+textWidth(zoomWidth)/2,layout.area.getEndPosY()-layout.labelScaleSize);
+           text(zoomWidth,startPosition +  Math.abs((endPosition-startPosition)/2)+textWidth(zoomWidth)/2,layout.area.getEndPosY()-layout.labelScaleSize - layout.getRangeSelectorHeight());
        }
    }
    
@@ -626,7 +678,7 @@ class GenomeBrowser
              layout.mousePositionX = layout.area.getEndPosX();
              
           stroke(layout.selectionLineColor);
-          line(layout.mousePositionX+0.5,layout.area.y,layout.mousePositionX+0.5,layout.area.height);
+          line(layout.mousePositionX+0.5,layout.area.y,layout.mousePositionX+0.5,layout.area.height-layout.labelScaleSize - layout.getRangeSelectorHeight());
           fill(layout.selectionLineColor);
           String Position =  layout.getGenomePositionFromMouse();
           if ((layout.mousePositionX + textWidth(Position) < layout.area.getEndPosX()))
@@ -635,6 +687,62 @@ class GenomeBrowser
               textAlign(RIGHT,TOP);
           text(Position,layout.mousePositionX+0.5,0);
       }
+   }
+   
+   void renderRangeSelector() {
+   
+       if (layout.showRangeSelector != 0) {
+       		 int scaleLineY = 0;
+        	 int scaleTextY = 0;
+        	 int gridLineSeperation = layout.getRangeSelectorGridLineBpSeperation();
+        	 float gridLineSeperationPx = layout.absolutebpToPx(gridLineSeperation);
+        	 if (layout.showRangeSelector == 1) {
+        	 	scaleTextY = layout.area.getEndPosY();
+        	 	scaleLineY = scaleTextY -  layout.labelScaleSize;
+        	 }
+        	 else
+        	 {
+        		scaleTextY = layout.area.getStartPosY();
+        		scaleLineY = scaleTextY +  layout.labelScaleSize;
+        	 }
+        	 fill(0);  
+        	 stroke(150);
+        	 textFont(layout.font,layout.labelScaleSize);
+        	 textAlign(LEFT,BASELINE);
+        	 
+        	 for (int i =0;i<=layout.rangeSelectorGridCount;i++)
+       		 {
+            	int x =  round(i*gridLineSeperationPx + layout.area.x)+0.5;
+            	line(x,scaleLineY,x,scaleLineY-2);
+            	text(round(layout.viewStart + i*gridLineSeperation),x,scaleTextY);
+        	 }
+        	 line(layout.area.x,scaleLineY+0.5,layout.area.getEndPosX(),scaleLineY+0.5);
+        	 
+        	 fill(100,20);
+             noStroke();
+             rectMode(CORNERS);
+                 
+			 int y_startPosition = scaleLineY -layout.getRangeSelectorHeight()+layout.labelScaleSize;
+			 int y_endPosition = scaleLineY;
+             int l_startPosition = 0;
+             int l_endPosition = layout.absolutebpToPx(layout.zoomStart);
+                 
+                 
+			 rect(l_startPosition,y_startPosition,l_endPosition,y_endPosition);
+			 int r_startPosition = layout.absolutebpToPx(layout.zoomEnd);
+			 int r_endPosition = layout.area.getEndPosX();
+			 rect(r_startPosition,y_startPosition,r_endPosition,y_endPosition);
+             stroke(100);
+             strokeWeight(2.2);
+             line(l_startPosition,y_startPosition,
+             l_endPosition,y_startPosition);
+             line(r_startPosition,y_startPosition,
+             r_endPosition,y_startPosition);
+             line(l_endPosition,y_startPosition,l_endPosition,y_endPosition);
+             line(r_startPosition,y_startPosition,r_startPosition,y_endPosition);
+             line(l_endPosition,y_endPosition,r_startPosition,y_endPosition);
+             strokeWeight(1);      
+       }
    }
 
    void renderControls()
@@ -646,13 +754,13 @@ class GenomeBrowser
         float gridLineSeperationPx = layout.bpToPx(gridLineSeperation);
         if (layout.showScale == 1)
         {
-           scaleTextY = layout.area.getEndPosY();
+           scaleTextY = layout.area.getEndPosY() - layout.getRangeSelectorHeight();
            scaleLineY = scaleTextY - layout.labelScaleSize;
 
         }
         else
         {
-           scaleTextY = layout.area.getEndPosY();
+           scaleTextY = layout.area.getEndPosY() - layout.getRangeSelectorHeight();
            scaleLineY = scaleTextY + layout.labelScaleSize;
         }
         fill(0);  
@@ -663,7 +771,7 @@ class GenomeBrowser
         for (int i =0;i<=layout.gridLineCount;i++)
         {
             int x =  round(i*gridLineSeperationPx + layout.area.x)+0.5;
-            line(x,0,x,layout.height);
+            line(x,0,x,(layout.height- layout.getRangeSelectorHeight()));
             text(round(layout.zoomStart + i*gridLineSeperation),x,scaleTextY);
         }
         line(layout.area.x,scaleLineY+0.5,layout.area.getEndPosX(),scaleLineY+0.5);
@@ -697,6 +805,7 @@ class GenomeBrowser
    }
    
 }
+
 
 
 class Gene
