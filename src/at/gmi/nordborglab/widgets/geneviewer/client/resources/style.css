@@ -1,0 +1,98 @@
+@CHARSET "UTF-8";
+
+.popupPanel {
+	width:400px;
+	z-index:20;
+	font-family: arial,helvetica,sans-serif;
+	font-size: 9pt;
+	text-align: left;
+	color: #444444;
+}
+.popupRowEven {
+  	background-color: 	#F1EFEC;
+}
+
+.popupNameRow {
+	font-size:13pt;
+	font-weight:bold;
+}
+.geneviewer {
+	margin-left:26px;
+}
+.settingsPopup {
+	background:none repeat scroll 0 0 #FFFFFF;
+	border:1px solid rgba(0, 0, 0, 0.2);
+	-moz-user-select:none;
+	box-shadow:0 2px 4px rgba(0, 0, 0, 0.2);
+	clip:auto !important;
+	padding: 0 0 6px;
+	z-index:99;
+}
+
+@sprite .settingsButton {
+	gwt-image: 'settings_icon';
+	opacity:0.55;
+	width:25px;
+	height:15px;
+}
+.settingsContent {
+	border: medium none;
+	padding:0;
+	font-family: arial,sans-serif;
+	font-size: 13px;
+}
+
+.settingsContent a,a:visited,a:hover {
+      text-decoration: none;
+      color:#333333;
+      cursor: pointer;
+         
+}
+
+.settingsContentTitle {
+	padding:6px 8px;
+}
+
+/**@sprite .settingsContentItemChecked {
+	gwt-image: 'checkmark' !important;
+	background-position:left center;
+	width:inherit;
+	height:inherit;
+}**/
+
+.settingsContentItemCheckboxChecked {
+	opacity:1 !important;
+}
+
+.settingsContentItem {
+	padding: 6px 7em 6px 10px;
+}
+
+.settingsContentItem:after {
+	content:".";
+	display:block;
+	height:0;
+	clear:both;
+	visibility:hidden;
+}
+
+.settingsContentItemText {
+	padding-left:8px;
+	float:left;
+	line-height:21px;
+}
+
+.settingsContentItemCheckbox {
+	float:left;
+	opacity:0.3;
+	cursor:pointer;
+}
+
+.settingsContentItem:hover{
+    background-color: #EEEEEE;
+    border-color: #EEEEEE;
+    border-style: dotted;
+    border-width: 1px 0;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
