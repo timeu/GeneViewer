@@ -1,3 +1,9 @@
+November 9, 2011 - Release 0.2.7
+   * backend (Update): Functionality for retrieving JBrowse's gene densitiy histogram data added
+   * GWT (Bugfix): inherit definition for standard theme removed
+   * GWT (Feature): functionality for displaying statistic overview band/panel added
+   * GWT (lib): Dygraph GWT library added 
+
 October 14, 2011 - Release 0.2.6
    * GWT (Bugfix): Changed access for onResize and onHighlightGene to public
 
