@@ -17,7 +17,8 @@
 
   <!-- Specify the paths for translatable code                    -->
   <inherits name="com.processingjs.Processing" />
-  
+  <inherits name="com.google.gwt.visualization.Visualization"/>
+  <inherits name="org.danvk.dygraphs.Dygraph" />
   <source path='client'/>
   <source path='shared'/>
 </module>
