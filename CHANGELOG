@@ -1,3 +1,8 @@
+November 11, 2011 - Release 0.2.8
+   * GWT (lib): Dygraph GWT library updated to 0.5
+   * PJS (Bugfix): Free lanes are correctly retrieved
+   * GWT (Bugfix): Proper layout handling. GeneViewer size will be automatically calculated from container
+   
 November 9, 2011 - Release 0.2.7
    * backend (Update): Functionality for retrieving JBrowse's gene densitiy histogram data added
    * GWT (Bugfix): inherit definition for standard theme removed
