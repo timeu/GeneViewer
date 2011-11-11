@@ -37,7 +37,10 @@ import at.gmi.nordborglab.widgets.geneviewer.client.resources.MyResources;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.SpanElement;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -91,7 +94,6 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	public enum SHOW_RANGE_SELECTOR  {None,Bottom,Top};
 	
 	protected boolean fetchGenes = true;
-	protected boolean dynamicWidth = false;
 	protected boolean showStatsBand = true;
 	protected int viewStart = 0;
 	protected int viewEnd = 0;
@@ -109,10 +111,17 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	protected List<GenomeStat> currentGenomeStats;
 	protected DataTable stackableGenomeStatsCache = null;
 	protected HashMap<GenomeStat,DataTable> nonstackableGenomeStatsCache = new HashMap<GenomeStat,DataTable>();
-	
-	
 	protected Dygraphs.Options options = Dygraphs.Options.create();
 	protected DataTable statisticsDataTable;
+	protected int width_offset = 31;
+	
+	private final ScheduledCommand layoutCmd = new ScheduledCommand() {
+    	public void execute() {
+    		layoutScheduled = false;
+		    forceLayout();
+		}
+    };
+	private boolean layoutScheduled = false;
 
 	@UiField Processing<GeneViewerInstance> processing;
 	@UiField Dygraphs genomeStatChart;
@@ -150,14 +159,17 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	}
 	
 
+	public void setWidthOffset(int offset) {
+		this.width_offset = offset;
+	}
 	
-	public void setSize(Integer width,Integer height)
+	/*public void setSize(Integer width,Integer height)
 	{
 		if (!dynamicWidth) {
 			this.width= width;
 		}
 		this.height = height - (showStatsBand ? statsBandHeight : 0);
-	}
+	}*/
 	
 	public void setDataSource(DataSource datasource) {
 		this.datasource = datasource;
@@ -409,24 +421,8 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 			Window.open(geneInfoUrl.replace("{0}", event.getGene().getName()),"",""); 
 	}
 	
-	@Override
-	public void onResize() {
-		if (!dynamicWidth)
-			return;
-		width = getOffsetWidth();
-		if (processing.isLoaded()) {
-			processing.getInstance().setLayoutSize(width-31,height);
-			processing.getInstance().redraw(false);
-			genomeStatChart.onResize();
-			//if (showStatsBand)
-				//genomeStatChart.redraw();
-		}
-		
-	}
 	
-	public void setDynamicWidth(boolean flag) {
-		this.dynamicWidth = flag;
-	}
+	
 	
 	private void loadGenomeStats() {
 		if (datasource == null || !showStatsBand)
@@ -570,8 +566,6 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	protected void drawStatistics() {
 		DataView view = filterStatsToDisplay();
 		if (view != null) {
-			genomeStatChart.setOptions(options);
-			genomeStatChart.setData(view);
 			genomeStatChart.draw(view,createOptions(currentGenomeStats.get(0).isStepPlot()));
 			isGenomeStatsDrawn = true;
 		}
@@ -615,8 +609,7 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 		options.setIncludeZero(true);
 		options.setWidth(width);
 		options.setHeight(statsBandHeight);
-		options.setAxisLabelFontSize(12);
-		options.setxAxisLabelWidth(100);
+		options.setAxisLabelFontSize(11);
 		options.setyAxisLabelWidth(20);
 		options.setMinimumDistanceForHighlight(10);
 		options.setFillGraph(true);
@@ -628,6 +621,8 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	}
 	
 	private void initStatisticsChart() {
+		genomeStatChart.setWidth("100%");
+		genomeStatChart.setHeight(statsBandHeight+"px");
 		genomeStatChart.addUnderlayHandler(new UnderlayHandler() {
 			
 			@Override
@@ -732,4 +727,33 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	}
 	
 	
+	@Override
+	public void onResize() {
+		scheduledLayout();
+	}
+	
+	@Override 
+	public void onAttach() {
+		super.onAttach();
+		scheduledLayout();
+	}
+	
+	public void forceLayout() {
+		if (!isAttached() || !isVisible())
+			return;
+		width = getElement().getClientWidth() - width_offset;
+		height = getElement().getClientHeight() - (showStatsBand ? statsBandHeight : 0) - settings_btn.getElement().getClientHeight();
+		if (processing.isLoaded()) {
+			processing.getInstance().setLayoutSize(width, height);
+			processing.getInstance().redraw(false);
+			genomeStatChart.onResize();
+		}
+	}
+	
+	private void scheduledLayout() {
+	    if (isAttached() && !layoutScheduled) {
+	      layoutScheduled = true;
+	      Scheduler.get().scheduleDeferred(layoutCmd);
+	    }
+	}
 }
