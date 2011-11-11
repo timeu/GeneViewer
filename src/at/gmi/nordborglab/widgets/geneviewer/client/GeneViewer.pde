@@ -841,11 +841,14 @@ class Gene
       if (strand == "-") 
           start_x = start_x - layout.cdsHeight;
       else 
-          end_x = vector.y + layout.cdsHeight
+          end_x = vector.y + layout.cdsHeight;
       
-      if (layout.isDrawFeatureZoomLevel() && (vector.x + textWidth(name)) > end_x)
+      if (layout.isDrawFeatureZoomLevel())
       {
-       	 end_x = vector.x + textWidth(name);
+      	 int nameWidth =  (int)textWidth(name);
+      	 if ((vector.x + nameWidth) > end_x) {
+       	 	end_x = vector.x + nameWidth;
+       	 }
       }
       
       // get Lane
