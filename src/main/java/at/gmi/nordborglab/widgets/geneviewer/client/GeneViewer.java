@@ -81,7 +81,7 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	interface Resources extends ClientBundle
 	{
 		Resources INSTANCE = GWT.create(Resources.class);
-		@Source("GeneViewer.pde")
+		@Source("resources/GeneViewer.pde")
 		ExternalTextResource getCode();
 	}
 	

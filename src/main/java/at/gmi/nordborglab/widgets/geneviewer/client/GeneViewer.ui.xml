@@ -2,7 +2,7 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui"
 	xmlns:dyg="urn:import:org.danvk.dygraphs.client"
-	xmlns:pjs="urn:import:com.processingjs.client">
+	xmlns:pjs="urn:import:at.gmi.nordborglab.processingjs.client">
 
 	<ui:with field="mainRes" type="at.gmi.nordborglab.widgets.geneviewer.client.resources.MyResources" />
 	
