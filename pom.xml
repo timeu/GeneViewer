@@ -93,4 +93,9 @@
   		<dependency><groupId>org.danvk</groupId><artifactId>dygraph</artifactId><version>0.6.0-SNAPSHOT</version></dependency>
 </dependencies>
   </dependencyManagement>
+  <scm>
+  	<url>https://timeu@github.com/timeu/GeneViewer.git</url>
+  	<connection>https://timeu@github.com/timeu/GeneViewer.git</connection>
+  	<developerConnection>https://timeu@github.com/timeu/GeneViewer.git</developerConnection>
+  </scm>
 </project>
