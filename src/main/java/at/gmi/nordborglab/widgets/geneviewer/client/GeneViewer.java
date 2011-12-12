@@ -8,6 +8,7 @@ import org.danvk.dygraphs.client.Dygraphs;
 import org.danvk.dygraphs.client.Dygraphs.Options.SHOW_LEGEND;
 import org.danvk.dygraphs.client.events.UnderlayHandler;
 
+import at.gmi.nordborglab.processingjs.client.Processing;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.DataSource;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.DataSourceCallback;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.FetchGeneDescriptionCallback;
@@ -71,7 +72,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.DataView;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
-import com.processingjs.client.Processing;
 
 
 public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZoomResizeHandlers,HasHandlers, 

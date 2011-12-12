@@ -1,9 +1,10 @@
 package at.gmi.nordborglab.widgets.geneviewer.client;
 
 
+import at.gmi.nordborglab.processingjs.client.ProcessingInstance;
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.HasHandlers;
-import com.processingjs.client.ProcessingInstance;
 
 public class GeneViewerInstance extends ProcessingInstance{
 	
