@@ -6,12 +6,16 @@
   <version>0.3.0-SNAPSHOT</version>
   <name>GeneViewer</name>
   
+  <parent>
+		<groupId>at.gmi.nordborglab</groupId>
+		<artifactId>superpom</artifactId>
+		<version>0.1</version>
+	</parent>
+  
    <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <gwtVersion>2.4.0</gwtVersion>
-    <maven.compiler.source>1.6</maven.compiler.source>
-    <maven.compiler.target>1.6</maven.compiler.target>
     <github.maven.repository>file:///srv/uemit.seren/repository/maven-repository/</github.maven.repository>
   </properties>
   
@@ -43,22 +47,14 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-    	<groupId>com.google.gwt.google-apis</groupId>
-    	<artifactId>gwt-visualization</artifactId>
-    	<version>1.1.2</version>
-    	<scope>provided</scope>
-    </dependency>
-    <dependency>
     	<groupId>org.danvk</groupId>
     	<artifactId>dygraph</artifactId>
     	<version>0.6.0-SNAPSHOT</version>
-    	<scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>at.gmi.nordborglab</groupId>
     	<artifactId>processingjs</artifactId>
     	<version>0.5.0-SNAPSHOT</version>
-    	<scope>provided</scope>
     </dependency>
   </dependencies>
   
@@ -88,11 +84,6 @@
             </resource>
     </resources>
   </build>
-  <dependencyManagement>
-  	<dependencies>
-  		<dependency><groupId>org.danvk</groupId><artifactId>dygraph</artifactId><version>0.6.0-SNAPSHOT</version></dependency>
-</dependencies>
-  </dependencyManagement>
   <scm>
   	<url>https://timeu@github.com/timeu/GeneViewer.git</url>
   	<connection>https://timeu@github.com/timeu/GeneViewer.git</connection>
