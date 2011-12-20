@@ -1,5 +1,10 @@
+December 20, 2011 - Release 0.4.0
+   * GWT (Update): Pom updated 
+   * GWT (Update): Official maven release
+   
 December 12, 2011 - Release 0.3.0 
    * GWT (Feature): Library mavenized 
+   
 November 11, 2011 - Release 0.2.8
    * GWT (lib): Dygraph GWT library updated to 0.5
    * PJS (Bugfix): Free lanes are correctly retrieved
