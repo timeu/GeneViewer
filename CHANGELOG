@@ -1,3 +1,6 @@
+January 18, 2011 - Release 0.4.2 
+  * Dygraph (Update): Bugfix: Reload Genomestats when chromosome is changed
+
 December 21, 2011 - Release 0.4.1 
    * Dygraph (Update): Updated to version 0.7.1
 
