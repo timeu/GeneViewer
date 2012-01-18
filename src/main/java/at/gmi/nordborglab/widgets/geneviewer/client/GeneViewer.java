@@ -112,7 +112,6 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	protected DataTable stackableGenomeStatsCache = null;
 	protected HashMap<GenomeStat,DataTable> nonstackableGenomeStatsCache = new HashMap<GenomeStat,DataTable>();
 	protected Dygraphs.Options options = Dygraphs.Options.create();
-	protected DataTable statisticsDataTable;
 	protected int width_offset = 31;
 	
 	private final ScheduledCommand layoutCmd = new ScheduledCommand() {
@@ -194,6 +193,8 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 		this.viewEnd = end;
 		if (processing.isLoaded()) {
 			processing.getInstance().setViewRegion(start, end);
+			if (showStatsBand)
+				drawStatistics();
 		}
 	}
 	
@@ -213,7 +214,14 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	
 	
 	public void setChromosome(String chromosome) {
+		boolean redrawStats = false;
+		if (chromosome != null && !chromosome.equals(this.chromosome))
+			redrawStats = true;
 		this.chromosome = chromosome;
+		if (redrawStats) {
+			clearGenomeStatsCache();
+			loadAndDisplayGenomeStats(true);
+		}
 	}
 	
 	public void updateZoom(Integer start,Integer end) {
@@ -755,5 +763,10 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	      layoutScheduled = true;
 	      Scheduler.get().scheduleDeferred(layoutCmd);
 	    }
+	}
+	
+	private void clearGenomeStatsCache() {
+		stackableGenomeStatsCache = null;
+		nonstackableGenomeStatsCache.clear();
 	}
 }
