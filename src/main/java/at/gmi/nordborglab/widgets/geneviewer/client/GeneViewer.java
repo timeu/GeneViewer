@@ -769,4 +769,8 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 		stackableGenomeStatsCache = null;
 		nonstackableGenomeStatsCache.clear();
 	}
+	
+	public void destroy() {
+		genomeStatChart.destroy();
+	}
 }
