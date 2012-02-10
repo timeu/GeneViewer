@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.danvk.dygraphs.client.DygraphOptions;
+import org.danvk.dygraphs.client.DygraphOptions.SHOW_LEGEND;
 import org.danvk.dygraphs.client.Dygraphs;
-import org.danvk.dygraphs.client.Dygraphs.Options.SHOW_LEGEND;
 import org.danvk.dygraphs.client.events.UnderlayHandler;
 
 import at.gmi.nordborglab.processingjs.client.Processing;
@@ -111,7 +112,7 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	protected List<GenomeStat> currentGenomeStats;
 	protected DataTable stackableGenomeStatsCache = null;
 	protected HashMap<GenomeStat,DataTable> nonstackableGenomeStatsCache = new HashMap<GenomeStat,DataTable>();
-	protected Dygraphs.Options options = Dygraphs.Options.create();
+	protected DygraphOptions options = DygraphOptions.create();
 	protected int width_offset = 31;
 	
 	private final ScheduledCommand layoutCmd = new ScheduledCommand() {
@@ -609,7 +610,7 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 		return view;
 	}
 	
-	private Dygraphs.Options createOptions(boolean stepPlot) {
+	private DygraphOptions createOptions(boolean stepPlot) {
 		
 		options.setRollerPeriod(1000);
 		options.setshowRoller(true);
@@ -638,7 +639,8 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 				int zoomStart = processing.getInstance().getZoomStart();
 				int zoomEnd = processing.getInstance().getZoomEnd();
 				event.canvas.save();
-				event.canvas.setFillStyle("yellow");
+				event.canvas.setFillStyle("#FFFF00");
+				event.canvas.setStrokeStyle("#000000");
 				double left = event.dygraph.toDomXCoord(zoomStart);
 				double right = event.dygraph.toDomXCoord(zoomEnd);
 				double length = right - left;

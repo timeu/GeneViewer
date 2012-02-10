@@ -171,15 +171,20 @@ public class JBrowseDataSourceImpl extends AbstractHttpDataSource{
 			
 		}
 	}
-
-	@Override
-	public void fetchGenomeStatsData(List<GenomeStat> genomeStats,String chr,
-			final FetchGenomeStatsDataCallback callback) {
+	
+	protected String getStatUrl(List<GenomeStat> genomeStats) {
 		Iterator<GenomeStat> iterator = genomeStats.iterator();
 		String stats = iterator.next().getName();
 		while (iterator.hasNext()) {
 			stats = stats + ","+iterator.next().getName();
 		}
+		return stats;
+	}
+
+	@Override
+	public void fetchGenomeStatsData(List<GenomeStat> genomeStats,String chr,
+			final FetchGenomeStatsDataCallback callback) {
+		String stats = getStatUrl(genomeStats);
 		RequestBuilder request = new RequestBuilder(RequestBuilder.GET,url+"getGenomeStatsData?stats="+stats+"&chr="+chr);
 		request.setCallback(new RequestCallback() {
 			
