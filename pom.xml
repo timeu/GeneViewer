@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>at.gmi.nordborglab.widgets</groupId>
   <artifactId>geneviewer</artifactId>
-  <version>0.4.4-SNAPSHOT</version>
+  <version>0.4.4</version>
   <name>GeneViewer</name>
   
   <parent>
@@ -48,12 +48,12 @@
     <dependency>
     	<groupId>org.danvk</groupId>
     	<artifactId>dygraphs-gwt</artifactId>
-    	<version>0.7.3-SNAPSHOT</version>
+    	<version>0.7.3</version>
     </dependency>
     <dependency>
     	<groupId>at.gmi.nordborglab</groupId>
     	<artifactId>processingjs</artifactId>
-    	<version>0.6.1-SNAPSHOT</version>
+    	<version>0.6.0</version>
     </dependency>
   </dependencies>
   
