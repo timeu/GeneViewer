@@ -47,7 +47,7 @@
     </dependency>
     <dependency>
     	<groupId>org.danvk</groupId>
-    	<artifactId>dygraph</artifactId>
+    	<artifactId>dygraphs-gwt</artifactId>
     	<version>0.7.3-SNAPSHOT</version>
     </dependency>
     <dependency>
