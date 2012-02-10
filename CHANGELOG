@@ -1,3 +1,6 @@
+Feburary 10, 2012 - Release 0.4.4 
+  * Dygraph (Update): Upgraded to new version of dygraph (0.7.3)
+  
 January 25, 2011 - Release 0.4.3
   * Dygraph (Update): Upgraded to new version of dygraph (0.7.2)
   * GWT (Update): destroy function added
