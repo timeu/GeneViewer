@@ -15,6 +15,7 @@ import at.gmi.nordborglab.widgets.geneviewer.client.datasource.GenomeStat;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.SearchGeneCallback;
 
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -229,19 +230,9 @@ public class JBrowseDataSourceImpl extends AbstractHttpDataSource{
 				JSONObject retval = value.isObject();
 				if (retval.get("status").isString().stringValue().equals("OK"))
 				{
-					JSONArray stats_array = retval.get("stats").isArray();
-					for (int i = 0;i<stats_array.size();i++) {
-						JSONObject stats_item = stats_array.get(i).isObject();
-						boolean isStackable = true;
-						boolean isStepPlot = false;
-						String label = null;
-						if (stats_item.containsKey("isStepPlot"))
-							isStepPlot = stats_item.get("isStepPlot").isBoolean().booleanValue();
-						if (stats_item.containsKey("isStackable"))
-							isStackable = stats_item.get("isStackable").isBoolean().booleanValue();
-						if (stats_item.containsKey("label"))
-							label = stats_item.get("label").isString().stringValue();
-						genomeStats.add(new GenomeStat(stats_item.get("name").isString().stringValue(), "blue",isStackable,isStepPlot,label));
+					JsArray<GenomeStat> array = JsonUtils.safeEval(retval.get("stats").toString());
+					for (int i =0;i<array.length();i++) {
+						genomeStats.add(array.get(i));
 					}
 					callback.onFetchGenomeStatsList(genomeStats);
 				}
