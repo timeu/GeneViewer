@@ -1,3 +1,6 @@
+February 15, 2012 - Release 0.4.5
+  * GWT (Feature): Genestats are now cached properly. 
+
 Feburary 10, 2012 - Release 0.4.4 
   * Dygraph (Update): Upgraded to new version of dygraph (0.7.3)
   
