@@ -515,10 +515,10 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 		track_container.clear();
 		for (GenomeStat stat:genomeStats) {
 			Image checkbox_image = new Image(mainRes.checkmark());
-			checkbox_image.setTitle("Click to add/remove "+ stat.getLabel()+" statistics to the chart as new series");
+			checkbox_image.setTitle("Click to add/remove "+ stat.getDisplayName()+" statistics to the chart as new series");
 			checkbox_image.setAltText(stat.getName());
-			Anchor link = new Anchor(stat.getLabel());
-			link.setTitle("Click to display "+ stat.getLabel()+" statistics");
+			Anchor link = new Anchor(stat.getDisplayName());
+			link.setTitle("Click to display "+ stat.getDisplayName()+" statistics");
 			link.setName(stat.getName());
 			FlowPanel panel = new FlowPanel();
 			SimplePanel panel_names  = new SimplePanel();
@@ -636,6 +636,8 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 			
 			@Override
 			public void onUnderlay(UnderlayEvent event) {
+				if (!processing.isLoaded())
+					return;
 				int zoomStart = processing.getInstance().getZoomStart();
 				int zoomEnd = processing.getInstance().getZoomEnd();
 				event.canvas.save();

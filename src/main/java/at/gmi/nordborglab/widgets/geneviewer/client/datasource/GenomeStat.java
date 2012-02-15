@@ -2,43 +2,50 @@ package at.gmi.nordborglab.widgets.geneviewer.client.datasource;
 
 import java.util.List;
 
-public class GenomeStat {
+import com.google.gwt.core.client.JavaScriptObject;
+
+public class GenomeStat extends JavaScriptObject{
 	
-	private final String name;
-	private final String label;
-	private final String color;
-	private final boolean isStepPlot;
-	private final boolean isStackable;
 	
-	public GenomeStat(String name,String color,boolean isStackable,boolean isStepPlot,String label) {
-		this.name = name;
-		this.color = color;
-		this.isStackable = isStackable;
-		this.isStepPlot = isStepPlot;
-		this.label = label;
-	}
+	protected GenomeStat() {}
 	
-	public String  getName() {
-		return name;
-	}
+	public final native String getName() /*-{
+		return this.name;
+	}-*/;
 	
-	public String getLabel() {
+	public final String getDisplayName() {
+		String label = getLabel();
 		if (label == null || label.isEmpty())
-			return name;
+			return getName();
 		return label;
 	}
 	
-	public String  getColor() {
-		return color;
-	}
+	public final native String getLabel() /*-{
+		if (typeof this.label != 'undefined') {
+			return this.label;
+		}
+		return null;
+	}-*/;
 	
-	public boolean isStackable() {
-		return isStackable;
-	}
 	
-	public boolean isStepPlot() {
-		return isStepPlot;
-	}
+	
+	public final native String getColor() /*-{
+		return this.color;
+	}-*/;
+	
+	public final native boolean isStackable() /*-{
+		if (typeof this.isStackable != 'undefined') {
+			return this.isStackable;
+		}
+		return true;
+	}-*/;
+	
+	public final native boolean isStepPlot() /*-{
+		if (typeof this.isStepPlot != 'undefined') {
+			return this.isStepPlot;
+		}
+		return false;
+	}-*/;
 	
 	public static GenomeStat getFromName(List<GenomeStat> stats,String name) {
 		for (GenomeStat stat: stats) {
