@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.danvk.dygraphs.client.DygraphOptions;
+import org.danvk.dygraphs.client.DygraphOptions.HighlightSeriesOptions;
 import org.danvk.dygraphs.client.DygraphOptions.SHOW_LEGEND;
 import org.danvk.dygraphs.client.Dygraphs;
 import org.danvk.dygraphs.client.events.UnderlayHandler;
@@ -613,14 +614,13 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	private DygraphOptions createOptions(boolean stepPlot) {
 		
 		options.setRollerPeriod(1000);
-		options.setshowRoller(true);
+		options.setShowRoller(true);
 		options.setPointSize(0);
 		options.setIncludeZero(true);
 		options.setWidth(width);
 		options.setHeight(statsBandHeight);
 		options.setAxisLabelFontSize(11);
-		options.setyAxisLabelWidth(20);
-		options.setMinimumDistanceForHighlight(10);
+		options.setYAxisLabelWidth(20);
 		options.setFillGraph(true);
 		if (stepPlot) {
 			options.setStepPlot(stepPlot);
