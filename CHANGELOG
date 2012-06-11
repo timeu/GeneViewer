@@ -1,6 +1,3 @@
-Mai 30, 2012 - Release 0.4.7
-  * Dygraph (Update): Upgrade to new version of dygraph (0.7.4)
-
 March 20, 2012 -  Release 0.4.6
   * Dygraph (Update): Upgraded to new version of dygraph (0.7.4)
   * GWT (Update): Removed some settings for Dygraph options.
