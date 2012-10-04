@@ -1,3 +1,6 @@
+October 5, 2012 - Release 0.4.8
+  * pom.xml: fixed correct versions for dependencies
+
 October 4, 2012 - Release 0.4.7
   * PJS (Update): Processing library updated to 0.6.1 
   * Dygraph (Update): Upgraded to version 0.7.5
