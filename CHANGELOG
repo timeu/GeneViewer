@@ -1,3 +1,9 @@
+October 4, 2012 - Release 0.4.7
+  * PJS (Update): Processing library updated to 0.6.1 
+  * Dygraph (Update): Upgraded to version 0.7.5
+  * GWT (Feature): Support for uploading custom tracks added
+  
+
 March 20, 2012 -  Release 0.4.6
   * Dygraph (Update): Upgraded to new version of dygraph (0.7.4)
   * GWT (Update): Removed some settings for Dygraph options.
