@@ -14,18 +14,17 @@
    <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <gwtVersion>2.4.0</gwtVersion>
-    <github.maven.repository>file:///srv/uemit.seren/repository/maven-repository/</github.maven.repository>
+    <gwtVersion>2.5.0-rc2</gwtVersion>
   </properties>
   
   <repositories>
     <repository>
-      <id>gwt-google-apis</id>
-      <url>https://maven.alfresco.com/nexus/content/repositories/activiti-thirdparty/</url>
-    </repository>
-     <repository>
       <id>nordborglab-snapshots</id>
       <url>https://github.com/timeu/maven-repos/raw/master/snapshots/</url>
+    </repository>
+    <repository>
+      <id>nordborglab-releases</id>
+      <url>https://github.com/timeu/maven-repos/raw/master/releases/</url>
     </repository>
   </repositories>
 
@@ -53,7 +52,7 @@
     <dependency>
     	<groupId>at.gmi.nordborglab</groupId>
     	<artifactId>processingjs</artifactId>
-    	<version>0.6.0</version>
+    	<version>0.6.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
   
