@@ -8,4 +8,8 @@ public abstract class AbstractHttpDataSource implements DataSource{
 	public AbstractHttpDataSource(String url) {
 		this.url = url;
 	}
+	
+	public String getUrl() {
+		return url;
+	}
 }

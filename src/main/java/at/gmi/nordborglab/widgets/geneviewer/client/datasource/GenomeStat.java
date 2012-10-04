@@ -47,6 +47,14 @@ public class GenomeStat extends JavaScriptObject{
 		return false;
 	}-*/;
 	
+	public final native boolean isCustom() /*-{
+		if (typeof this.isCustom != 'undefined') {
+		    return this.isCustom;
+		}
+		return false;
+	}-*/;
+	
+	
 	public static GenomeStat getFromName(List<GenomeStat> stats,String name) {
 		for (GenomeStat stat: stats) {
 			if (stat != null && stat.getName().equals(name)){

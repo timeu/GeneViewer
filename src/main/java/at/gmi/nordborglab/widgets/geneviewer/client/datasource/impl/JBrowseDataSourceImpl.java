@@ -5,13 +5,17 @@ import java.util.Iterator;
 import java.util.List;
 
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.AbstractHttpDataSource;
+import at.gmi.nordborglab.widgets.geneviewer.client.datasource.BackendResult;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.DataSourceCallback;
+import at.gmi.nordborglab.widgets.geneviewer.client.datasource.DeleteCustomGenomeStatsCallback;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.FetchGeneDescriptionCallback;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.FetchGenesFromQueryCallback;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.FetchGenomeStatsDataCallback;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.FetchGenomeStatsListCallback;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.Gene;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.GenomeStat;
+import at.gmi.nordborglab.widgets.geneviewer.client.datasource.GenomeStatData;
+import at.gmi.nordborglab.widgets.geneviewer.client.datasource.GenomeStatsList;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.SearchGeneCallback;
 
 import com.google.gwt.core.client.JsArray;
@@ -25,7 +29,6 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.visualization.client.DataTable;
 
 public class JBrowseDataSourceImpl extends AbstractHttpDataSource{
@@ -235,6 +238,105 @@ public class JBrowseDataSourceImpl extends AbstractHttpDataSource{
 						genomeStats.add(array.get(i));
 					}
 					callback.onFetchGenomeStatsList(genomeStats);
+				}
+			}
+			
+			@Override
+			public void onError(Request request, Throwable exception) {
+				// TODO Auto-generated method stub
+			}
+		});
+		try
+		{
+			request.send();
+		}
+		catch (Exception e) {
+			
+		}
+		
+	}
+
+	@Override
+	public void fetchCustomGenomeStatsList(
+			final FetchGenomeStatsListCallback callback,String urlParameters) {
+		RequestBuilder request = new RequestBuilder(RequestBuilder.GET,url+"getCustomGenomeStatsList?"+urlParameters);
+		request.setCallback(new RequestCallback() {
+			
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				if (response.getStatusCode() != 200)
+					return;
+				List<GenomeStat> genomeStats = new ArrayList<GenomeStat>();
+				GenomeStatsList result = JsonUtils.safeEval(response.getText());
+				if (result.getStatus().equals("OK"))
+				{
+					JsArray<GenomeStat> array = result.getGenomeStats();
+					for (int i =0;i<array.length();i++) {
+						genomeStats.add(array.get(i));
+					}
+					callback.onFetchGenomeStatsList(genomeStats);
+				}
+			}
+			
+			@Override
+			public void onError(Request request, Throwable exception) {
+				// TODO Auto-generated method stub
+			}
+		});
+		try
+		{
+			request.send();
+		}
+		catch (Exception e) {
+			
+		}
+		
+	}
+
+	@Override
+	public void deleteCustomGenomeStats(String urlParameters, String track,
+			final DeleteCustomGenomeStatsCallback callback) {
+		RequestBuilder request = new RequestBuilder(RequestBuilder.GET,url+"deleteCustomGenomeStats?"+urlParameters+"&stat="+track);
+		request.setCallback(new RequestCallback() {
+			
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				if (response.getStatusCode() != 200)
+					return;
+				BackendResult result = JsonUtils.safeEval(response.getText());
+				callback.onDeleteCustomGenomeStats(result);
+			}
+			
+			@Override
+			public void onError(Request request, Throwable exception) {
+				// TODO Auto-generated method stub
+			}
+		});
+		try
+		{
+			request.send();
+		}
+		catch (Exception e) {
+			
+		}
+		
+	}
+
+	@Override
+	public void fetchCustomGenomeStatsData(List<GenomeStat> genomeStats,
+			String chr, String urlParameters,
+			final FetchGenomeStatsDataCallback callback) {
+		String stats = getStatUrl(genomeStats);
+		RequestBuilder request = new RequestBuilder(RequestBuilder.GET,url+"getCustomGenomeStatsData?"+urlParameters+"&stats="+stats+"&chr="+chr);
+		request.setCallback(new RequestCallback() {
+			
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				GenomeStatData result = JsonUtils.safeEval(response.getText());
+				if (result.getStatus().equals("OK"))
+				{
+					DataTable dataTable = result.getDataTable();
+					callback.onFetchGenomeStats(dataTable);
 				}
 			}
 			

@@ -21,6 +21,7 @@ public interface MyResources extends ClientBundle  {
 		String settingsContentItem();
 		String settingsContentItemText();
 		String settingsContentItemCheckbox();
+		String settingsContentDeleteImage();
     }
 	
 	@Source("style.css")
@@ -31,4 +32,7 @@ public interface MyResources extends ClientBundle  {
 	
 	@Source("settings_icon.png")
     ImageResource settings_icon();
+
+	@Source("delete.png")
+	ImageResource delete();
 }

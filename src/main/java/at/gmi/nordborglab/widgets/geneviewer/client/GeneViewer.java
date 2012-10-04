@@ -5,19 +5,22 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.danvk.dygraphs.client.DygraphOptions;
-import org.danvk.dygraphs.client.DygraphOptions.HighlightSeriesOptions;
 import org.danvk.dygraphs.client.DygraphOptions.SHOW_LEGEND;
 import org.danvk.dygraphs.client.Dygraphs;
 import org.danvk.dygraphs.client.events.UnderlayHandler;
 
 import at.gmi.nordborglab.processingjs.client.Processing;
+import at.gmi.nordborglab.widgets.geneviewer.client.datasource.AbstractHttpDataSource;
+import at.gmi.nordborglab.widgets.geneviewer.client.datasource.BackendResult;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.DataSource;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.DataSourceCallback;
+import at.gmi.nordborglab.widgets.geneviewer.client.datasource.DeleteCustomGenomeStatsCallback;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.FetchGeneDescriptionCallback;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.FetchGenomeStatsDataCallback;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.FetchGenomeStatsListCallback;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.Gene;
 import at.gmi.nordborglab.widgets.geneviewer.client.datasource.GenomeStat;
+import at.gmi.nordborglab.widgets.geneviewer.client.datasource.UploadGenomeStatResult;
 import at.gmi.nordborglab.widgets.geneviewer.client.event.ClickGeneEvent;
 import at.gmi.nordborglab.widgets.geneviewer.client.event.ClickGeneHandler;
 import at.gmi.nordborglab.widgets.geneviewer.client.event.FetchGeneEvent;
@@ -40,10 +43,10 @@ import at.gmi.nordborglab.widgets.geneviewer.client.resources.MyResources;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.SpanElement;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -51,29 +54,33 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.HasHandlers;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.resources.client.ResourceException;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.DataView;
-import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 
 
 public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZoomResizeHandlers,HasHandlers, 
@@ -109,12 +116,13 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	protected HashMap<String, String> descriptions = new HashMap<String, String>();
 	protected String geneInfoUrl = null;
 	protected SHOW_RANGE_SELECTOR show_range_selector = SHOW_RANGE_SELECTOR.None;
-	protected List<GenomeStat> genomeStats;
-	protected List<GenomeStat> currentGenomeStats;
+	protected List<GenomeStat> genomeStats = new ArrayList<GenomeStat>();
+	protected List<GenomeStat> currentGenomeStats ;
 	protected DataTable stackableGenomeStatsCache = null;
 	protected HashMap<GenomeStat,DataTable> nonstackableGenomeStatsCache = new HashMap<GenomeStat,DataTable>();
 	protected DygraphOptions options = DygraphOptions.create();
 	protected int width_offset = 31;
+	protected String urlParameters = null;
 	
 	private final ScheduledCommand layoutCmd = new ScheduledCommand() {
     	public void execute() {
@@ -134,9 +142,58 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	@UiField FlowPanel container;
 	//@UiField Label chromosome_label;
 	@UiField HTMLPanel track_container;
+	@UiField HTMLPanel custom_track_container;
 	@UiField SpanElement name_label;
 	@UiField(provided=true) MyResources mainRes;
+	@UiField HTMLPanel uploadContainer;
+	@UiField HTMLPanel trackContent;
+	@UiField FormPanel uploadFormPanel;
+	@UiField Anchor addCustomTrackBtn;
+	@UiField TextBox nameTb;
+	@UiField FileUpload fileBox;
+	@UiField Button formSubmitBtn;
+	@UiField SpanElement uploadErrorMessage;
 	List<HandlerRegistration> handlerRegistrations = new ArrayList<HandlerRegistration>();
+	
+	ClickHandler image_click_handler = new ClickHandler() {
+		@Override
+		public void onClick(ClickEvent event) {
+			Image source = (Image)event.getSource();
+			String track = source.getAltText();
+			GenomeStat currentStat = GenomeStat.getFromName(currentGenomeStats, track);
+			// At least 1 GenomeStat must be selected
+			if (currentStat != null && currentGenomeStats.size() == 1) 
+				return;
+			
+			GenomeStat stackToModify = GenomeStat.getFromName(genomeStats, track);
+			
+			// if stackToModify is not stackable or is stackable but there is already a non stackable genomestat dispalyed, reset currentGenomeStat list and ad item
+			if (!stackToModify.isStackable() || (currentGenomeStats.size() == 1 && !currentGenomeStats.get(0).isStackable())) {
+				currentGenomeStats.clear();
+				currentGenomeStats.add(stackToModify);
+			}
+			else
+			{
+				if (currentStat == null) 
+					currentGenomeStats.add(stackToModify);
+				else
+					currentGenomeStats.remove(stackToModify);
+			}
+			loadAndDisplayGenomeStats(true);
+		}
+	};
+	
+	ClickHandler text_click_handler = new ClickHandler() {
+		@Override
+		public void onClick(ClickEvent event) {
+			Anchor source = (Anchor)event.getSource();
+			String track = source.getName();
+			GenomeStat stackToModify = GenomeStat.getFromName(genomeStats, track);
+			currentGenomeStats.clear();
+			currentGenomeStats.add(stackToModify);
+			loadAndDisplayGenomeStats(true);
+		}
+	};
 	
 	
 	public GeneViewer() {
@@ -155,6 +212,30 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 					settings_popup.hide();
 				else
 					settings_popup.showRelativeTo(settings_btn);
+			}
+		});
+		
+		uploadFormPanel.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+			
+			@Override
+			public void onSubmitComplete(SubmitCompleteEvent event) {
+				formSubmitBtn.setEnabled(true);
+				String text = event.getResults();
+				try {
+					UploadGenomeStatResult result = JsonUtils.safeEval(text);
+					if (result.getStatus().equals("OK")) {
+						genomeStats.add(result.getData());
+						initCustomGenomeStats();
+						uploadErrorMessage.setInnerText("");
+						onCancelUpload(null);
+					}
+					else {
+						uploadErrorMessage.setInnerText(result.getStatusText());
+					}
+				}
+				catch (Exception  e) {
+					uploadErrorMessage.setInnerText(e.getMessage());
+				}
 			}
 		});
 	}
@@ -437,18 +518,27 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	private void loadGenomeStats() {
 		if (datasource == null || !showStatsBand)
 			return;
+		genomeStats.clear();
 		datasource.fetchGenomeStatsList(new FetchGenomeStatsListCallback() {
 			
 			@Override
 			public void onFetchGenomeStatsList(List<GenomeStat> stats) {
-				genomeStats = stats;
-				initSettingsPopup();
+				genomeStats.addAll(stats);
+				initStandardGenomeStats();
 				List<GenomeStat> stats_to_load = new ArrayList<GenomeStat>();
 				stats_to_load.add(genomeStats.get(0));
 				currentGenomeStats = stats_to_load;
 				loadAndDisplayGenomeStats(true);
 			}
 		});
+		datasource.fetchCustomGenomeStatsList(new FetchGenomeStatsListCallback() {
+			
+			@Override
+			public void onFetchGenomeStatsList(List<GenomeStat> stats) {
+				genomeStats.addAll(stats);
+				initCustomGenomeStats();
+			}
+		},urlParameters);
 	}
 	
 	private void loadAndDisplayGenomeStats(final boolean isDisplay) {
@@ -458,14 +548,26 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 		updateSettingChecked();
 		List<GenomeStat>stats_to_fetch = getMissingGenomeStats();
 		if (stats_to_fetch != null) {
-			datasource.fetchGenomeStatsData(stats_to_fetch,chromosome, new FetchGenomeStatsDataCallback() {
-				
-				@Override
-				public void onFetchGenomeStats(DataTable data) {
-					cacheDataTable(data); 
-					drawStatistics();
-				}
-			} );
+			if (stats_to_fetch.size() > 0 && stats_to_fetch.get(0).isCustom()) {
+				datasource.fetchCustomGenomeStatsData(stats_to_fetch, chromosome, urlParameters, new FetchGenomeStatsDataCallback() {
+					
+					@Override
+					public void onFetchGenomeStats(DataTable data) {
+						cacheDataTable(data); 
+						drawStatistics();
+					}
+				});
+			}
+			else {
+				datasource.fetchGenomeStatsData(stats_to_fetch,chromosome, new FetchGenomeStatsDataCallback() {
+					
+					@Override
+					public void onFetchGenomeStats(DataTable data) {
+						cacheDataTable(data); 
+						drawStatistics();
+					}
+				} );
+			}
 		}
 		else
 		{
@@ -473,48 +575,12 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 		}
 	}
 
-	private void initSettingsPopup() {
-		ClickHandler image_click_handler = new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Image source = (Image)event.getSource();
-				String track = source.getAltText();
-				GenomeStat currentStat = GenomeStat.getFromName(currentGenomeStats, track);
-				// At least 1 GenomeStat must be selected
-				if (currentStat != null && currentGenomeStats.size() == 1) 
-					return;
-				
-				GenomeStat stackToModify = GenomeStat.getFromName(genomeStats, track);
-				
-				// if stackToModify is not stackable or is stackable but there is already a non stackable genomestat dispalyed, reset currentGenomeStat list and ad item
-				if (!stackToModify.isStackable() || (currentGenomeStats.size() == 1 && !currentGenomeStats.get(0).isStackable())) {
-					currentGenomeStats.clear();
-					currentGenomeStats.add(stackToModify);
-				}
-				else
-				{
-					if (currentStat == null) 
-						currentGenomeStats.add(stackToModify);
-					else
-						currentGenomeStats.remove(stackToModify);
-				}
-				loadAndDisplayGenomeStats(true);
-			}
-		};
+	private void initStandardGenomeStats() {
 		
-		ClickHandler text_click_handler = new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Anchor source = (Anchor)event.getSource();
-				String track = source.getName();
-				GenomeStat stackToModify = GenomeStat.getFromName(genomeStats, track);
-				currentGenomeStats.clear();
-				currentGenomeStats.add(stackToModify);
-				loadAndDisplayGenomeStats(true);
-			}
-		};
 		track_container.clear();
 		for (GenomeStat stat:genomeStats) {
+			if (stat.isCustom())
+				continue;
 			Image checkbox_image = new Image(mainRes.checkmark());
 			checkbox_image.setTitle("Click to add/remove "+ stat.getDisplayName()+" statistics to the chart as new series");
 			checkbox_image.setAltText(stat.getName());
@@ -537,12 +603,79 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 		}
 	}
 	
+	private void initCustomGenomeStats() {
+		custom_track_container.clear();
+		for (GenomeStat stat:genomeStats) {
+			if (!stat.isCustom())
+				continue;
+			Image checkbox_image = new Image(mainRes.checkmark());
+			Image delete_image = new Image(mainRes.delete());
+			delete_image.setTitle("Click to delete "+stat.getDisplayName()+" statistics");
+			delete_image.setAltText(stat.getName());
+			checkbox_image.setTitle("Click to add/remove "+ stat.getDisplayName()+" statistics to the chart as new series");
+			checkbox_image.setAltText(stat.getName());
+			Anchor link = new Anchor(stat.getDisplayName());
+			link.setTitle("Click to display "+ stat.getDisplayName()+" statistics");
+			link.setName(stat.getName());
+			FlowPanel panel = new FlowPanel();
+			SimplePanel panel_names  = new SimplePanel();
+			panel.add(checkbox_image);
+			panel.add(panel_names);
+			panel_names.add(link);
+			panel.add(delete_image);
+			delete_image.addStyleName(mainRes.style().settingsContentDeleteImage());
+			checkbox_image.addStyleName(mainRes.style().settingsContentItemCheckbox());
+			panel_names.addStyleName(mainRes.style().settingsContentItemText());
+			panel.addStyleName(mainRes.style().settingsContentItem());
+			custom_track_container.add(panel);
+			handlerRegistrations.add(link.addClickHandler(text_click_handler));
+			handlerRegistrations.add(checkbox_image.addClickHandler(image_click_handler));
+			handlerRegistrations.add(delete_image.addClickHandler(new ClickHandler() {
+				
+				@Override
+				public void onClick(ClickEvent event) {
+					Image source = (Image)event.getSource();
+					String track = source.getAltText();
+					final GenomeStat stat = GenomeStat.getFromName(genomeStats, track);
+					datasource.deleteCustomGenomeStats(urlParameters,track, new DeleteCustomGenomeStatsCallback() {
+						
+						@Override
+						public void onDeleteCustomGenomeStats(BackendResult result) {
+							if (result.getStatus().equals("OK")) {
+								genomeStats.remove(stat);
+								initCustomGenomeStats();
+								if (stat == currentGenomeStats.get(0)) {
+									currentGenomeStats.remove(0);
+									currentGenomeStats.add(genomeStats.get(0));
+									loadAndDisplayGenomeStats(true);
+								}
+							}
+						}
+					});
+				}
+			}));
+		}
+	}
+	
+	
 	private void updateSettingChecked() {
 		for (int i =0;i<track_container.getWidgetCount();i++) {
 			FlowPanel panel = (FlowPanel)track_container.getWidget(i);
 			Image image = (Image)panel.getWidget(0);
 			for (GenomeStat stat: currentGenomeStats)  {
-				if (stat.getName().equals(image.getAltText())) {
+				if (stat.getName().equals(image.getAltText()) && !stat.isCustom()) {
+					image.addStyleName(mainRes.style().settingsContentItemCheckboxChecked());
+					break;
+				}
+				else
+					image.removeStyleName(mainRes.style().settingsContentItemCheckboxChecked());
+			}
+		}
+		for (int i = 0;i<custom_track_container.getWidgetCount();i++) {
+			FlowPanel panel = (FlowPanel)custom_track_container.getWidget(i);
+			Image image = (Image)panel.getWidget(0);
+			for (GenomeStat stat: currentGenomeStats)  {
+				if (stat.getName().equals(image.getAltText()) && stat.isCustom()) {
 					image.addStyleName(mainRes.style().settingsContentItemCheckboxChecked());
 					break;
 				}
@@ -777,4 +910,35 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers, HasZo
 	public void destroy() {
 		genomeStatChart.destroy();
 	}
+	
+	@UiHandler("addCustomTrackBtn")
+	public void onAddCustomTrack(ClickEvent e) {
+		uploadContainer.setVisible(true);
+		trackContent.setVisible(false);
+	}
+	
+	@UiHandler("formSubmitBtn") 
+	public void onSubmitUpload(ClickEvent e ) {
+		if (nameTb.getText() != null && !nameTb.getText().equals("") && fileBox.getFilename() != null && !fileBox.getFilename().equals("")) {
+			formSubmitBtn.setEnabled(false);
+			uploadFormPanel.submit();
+		}
+	}
+	
+	
+	@UiHandler("cancelUploadBtn")
+	public void onCancelUpload(ClickEvent e) {
+		uploadFormPanel.reset();
+		uploadContainer.setVisible(false);
+		formSubmitBtn.setEnabled(true);
+		trackContent.setVisible(true);
+		uploadErrorMessage.setInnerText("");
+	}
+	
+	public void setUploadGenomeStatsFormUrl(String url,String urlParameters) {
+		uploadFormPanel.setAction(url+"?"+urlParameters);
+		this.urlParameters = urlParameters;
+	}
+	
+	
 }
