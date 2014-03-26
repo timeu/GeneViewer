@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>at.gmi.nordborglab.widgets</groupId>
   <artifactId>geneviewer</artifactId>
-  <version>0.4.9-SNAPSHOT</version>
+  <version>0.4.9</version>
   <name>GeneViewer</name>
   
   <parent>
@@ -41,12 +41,12 @@
     <dependency>
     	<groupId>org.danvk</groupId>
     	<artifactId>dygraphs-gwt</artifactId>
-    	<version>0.7.6-SNAPSHOT</version>
+    	<version>0.7.6</version>
     </dependency>
     <dependency>
     	<groupId>at.gmi.nordborglab</groupId>
     	<artifactId>processingjs</artifactId>
-    	<version>0.6.2-SNAPSHOT</version>
+    	<version>0.6.2</version>
     </dependency>
   </dependencies>
   
@@ -80,6 +80,6 @@
   	<url>https://timeu@github.com/timeu</url>
   	<connection>scm:git:https://timeu@github.com/timeu/GeneViewer.git</connection>
   	<developerConnection>scm:git:https://timeu@github.com/timeu/GeneViewer.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>geneviewer-0.4.9</tag>
   </scm>
 </project>
