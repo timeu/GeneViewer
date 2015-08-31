@@ -1,3 +1,8 @@
+August 31, 2015 - Release 1.0.0
+  * Major refactor. Moved to GWT 2.8.0 and new JsInterop
+  * Upgraded to ProcessingJS library 1.0.0
+  * Added unit tests
+
 March 26, 2014 - Release 0.4.9
   * pom.xml: GWT version updated to 2.5.1 and dependencies updated to latest version
 
