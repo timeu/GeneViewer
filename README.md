@@ -43,7 +43,11 @@ The `JsArrayMixed` data consists of a list of genes in JSON format. There are 2 
          [10422596,10423820,1,"CDS"]
        ]
      ],
-     [....]
+     [  
+       [
+         
+       ]
+     ]
    ]
 ```
 
