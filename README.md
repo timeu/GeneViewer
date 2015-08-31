@@ -27,7 +27,7 @@ The `JsArrayMixed` data consists of a list of genes in JSON format. There are 2 
  1. Simple gene models without any features (See [sample data][1]).
  2. Gene Models with features (see [sample data][2] and screenshot).
 
-Example of data with features: 
+**Example of data with features:**
 
 ```JSON
    [
@@ -42,7 +42,8 @@ Example of data with features:
          [10421840,10421930,1,"exon"],
          [10422596,10423820,1,"CDS"]
        ]
-     ]
+     ],
+     [....]
    ]
 ```
 
