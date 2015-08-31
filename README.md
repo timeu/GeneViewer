@@ -94,6 +94,6 @@ file like this:
 [2]: https://github.com/timeu/GeneViewer/blob/master/geneviewer-sample/src/main/resources/sample/client/data/genes_with_features.json
 [3]: http://www.gwtproject.org/release-notes.html#Release_Notes_2_7_0_RC1
 [4]: https://docs.google.com/document/d/1tir74SB-ZWrs-gQ8w-lOEV3oMY6u6lF2MmNivDEihZ4/edit#
-[5]: 
+[5]: https://github.com/timeu/GeneViewer/releases
 [6]: http://timeu.github.io/GeneViewer
 [7]: https://github.com/timeu/GeneViewer/tree/master/geneviewer-sample 
