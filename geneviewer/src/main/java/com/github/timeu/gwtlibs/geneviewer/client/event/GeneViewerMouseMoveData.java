@@ -1,12 +1,12 @@
 package com.github.timeu.gwtlibs.geneviewer.client.event;
 
 
-import com.google.gwt.core.client.js.JsProperty;
-import com.google.gwt.core.client.js.JsType;
+import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsType;
 
-@JsType
-public interface GeneViewerMouseMoveData {
+@JsType(isNative = true,namespace = JsPackage.GLOBAL,name="Object")
+public class GeneViewerMouseMoveData {
+	public int position;
+	public String gene;
 
-	@JsProperty int getPosition();
-	@JsProperty String getGene();
 }

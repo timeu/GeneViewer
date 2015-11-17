@@ -4,12 +4,11 @@ package com.github.timeu.gwtlibs.geneviewer.client;
 import com.github.timeu.gwtlibs.geneviewer.client.event.EventCallback;
 import com.github.timeu.gwtlibs.processingjsgwt.client.ProcessingInstance;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayMixed;
-import com.google.gwt.core.client.js.JsType;
-import com.google.gwt.event.shared.HasHandlers;
+import jsinterop.annotations.JsType;
 
-@JsType
+
+@JsType(isNative = true)
 public interface GeneViewerInstance extends ProcessingInstance {
 
 	void api_setLength(int length);

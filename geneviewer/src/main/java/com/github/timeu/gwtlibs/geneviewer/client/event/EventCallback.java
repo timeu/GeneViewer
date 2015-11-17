@@ -1,6 +1,7 @@
 package com.github.timeu.gwtlibs.geneviewer.client.event;
 
-import com.google.gwt.core.client.js.JsFunction;
+
+import jsinterop.annotations.JsFunction;
 
 /**
  * Created by uemit.seren on 8/28/15.

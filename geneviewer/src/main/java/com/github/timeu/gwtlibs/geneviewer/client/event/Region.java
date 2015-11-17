@@ -1,14 +1,13 @@
 package com.github.timeu.gwtlibs.geneviewer.client.event;
 
-import com.google.gwt.core.client.js.JsProperty;
-import com.google.gwt.core.client.js.JsType;
+import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsType;
 
 /**
  * Created by uemit.seren on 8/31/15.
  */
-@JsType
-public interface Region {
-
-    @JsProperty int getStart();
-    @JsProperty int getEnd();
+@JsType(isNative = true,namespace = JsPackage.GLOBAL,name="Object")
+public class Region {
+    public int start;
+    public int end;
 }

@@ -73,6 +73,7 @@ public class SampleEntryPoint implements EntryPoint {
 
     @Override
     public void onModuleLoad() {
+        geneviewer.setChromosome("Chr1");
         geneviewer.setViewRegion(geneRegion[0],geneRegion[1]);
         FlowPanel settingsPanel = new FlowPanel();
         LayoutPanel panel = new LayoutPanel();
@@ -186,7 +187,7 @@ public class SampleEntryPoint implements EntryPoint {
     }
 
     private String getMessageFromGene(Gene gene) {
-        return "Name: "+gene.getName()+", start: "+gene.getStart()+", end: " + gene.getEnd()+", chr: " + gene.getChromosome();
+        return "Name: "+gene.name+", start: "+gene.start+", end: " + gene.end+", chr: " + gene.chromosome;
     }
 
     private void changeType(boolean isFeatures)

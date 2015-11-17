@@ -11,6 +11,15 @@
     <name>GeneViewer</name>
 
     <build>
+        <!-- required until https://github.com/tbroyer/gwt-maven-plugin/issues/33 is fixed -->
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/java</directory>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

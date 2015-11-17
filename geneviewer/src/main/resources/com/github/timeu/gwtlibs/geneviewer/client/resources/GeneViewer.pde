@@ -28,6 +28,8 @@ void draw()
 // API for access via javascript
 
 void api_setSize(int width,int height) {
+    if (width == 0 || height == 0)
+        return;
     size(width,height);
     layout.setSize(width,height);
 }
@@ -293,7 +295,7 @@ class Layout
    	      scale = 3;
        laneSize = cdsHeight*scale;
    	   laneCount = floor((this.area.height-getLaneMarginTop()) / laneSize);
-   	   lanes = new int[laneCount];
+       lanes = new int[laneCount];
    	   resetLanes();
    }
    
@@ -1055,6 +1057,15 @@ class Region  {
     }
 }
 
+class MouseMoveData {
+   int position;
+   Gene gene;
+   MouseMoveData(int position,Gene gene) {
+       this.position = position;
+       this.gene = gene;
+   }
+}
+
 void mouseOut() {
    if (eventHandler['unhighlightGeneEvent'] != null)
    {
@@ -1083,8 +1094,9 @@ void mouseMoved() {
 	   
 	   browser.highlightGene = gene;
 	     
-	   if (eventHandler['mouseMoveEvent'] != null)
-	       eventHandler['mouseMoveEvent'](position);
+	   if (eventHandler['mouseMoveEvent'] != null) {
+	       eventHandler['mouseMoveEvent'](new MouseMoveData(position,gene));
+        }
 	   if (eventHandler['highlightGeneEvent'] != null && isHighlight && browser.highlightGene != null)
 	   {
 	   	   eventHandler['highlightGeneEvent'](new HighlightGene(browser.highlightGene,browser.chr,layout.mousePositionX,layout.getLowerLanePosY(gene.lane)));
