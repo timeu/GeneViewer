@@ -102,6 +102,7 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers,HasZoo
 			public void run() {
 				if (!processing.isLoaded())
 					return;
+				sinkEvents();
 				processing.getInstance().api_setSize(width, height);
 				processing.getInstance().api_setViewRegion(viewStart, viewEnd);
 				processing.getInstance().api_setChromosome(chromosome);
@@ -178,67 +179,56 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers,HasZoo
 		return !(maximumZoom != -1 && maximumZoom <= currentZoom);
 	}
 
-	protected final void sinkEvents(Event.Type<?> type,EventHandler handler) {
-		String callback = "";
-		EventCallback eventCallback = null;
-		if (type == MouseMoveEvent.getType()) {
-			eventCallback = new EventCallback<GeneViewerMouseMoveData>() {
-				@Override
-				public void onCall(GeneViewerMouseMoveData data) {
-					fireEvent(new MouseMoveEvent(data));
+	private final void sinkEvents() {
+		sinkEvent(new EventCallback<GeneViewerMouseMoveData>() {
+			@Override
+			public void onCall(GeneViewerMouseMoveData data) {
+				fireEvent(new MouseMoveEvent(data));
+			}
+		},"mouseMoveEvent");
+
+
+		sinkEvent(new EventCallback<Region>() {
+			@Override
+			public void onCall(Region data) {
+				fireEvent(new ZoomResizeEvent(data.start,data.end));
+			}
+		},"zoomResizeEvent");
+
+		sinkEvent(new EventCallback<Region>() {
+			@Override
+			public void onCall(Region data) {
+				fireEvent(new FetchGeneEvent(data.start,data.end));
+			}
+		},"fetchGeneEvent");
+
+		sinkEvent(new EventCallback<GeneHighlightData>() {
+			@Override
+			public void onCall(GeneHighlightData data) {
+				fireEvent(new HighlightGeneEvent(data.gene,data.x,data.y));
+				showGeneInfoPopup(data);
+			}
+		},"highlightGeneEvent");
+
+		sinkEvent(new EventCallback<Void>() {
+			@Override
+			public void onCall(Void data) {
+				fireEvent(new UnhighlightGeneEvent());
+				if (showGeneInfoPopup) {
+					geneInfoPopup.hide();
 				}
-			};
-			callback = "mouseMoveEvent";
-		}
-		else if (type == ZoomResizeEvent.getType()) {
-			eventCallback = new EventCallback<Region>() {
-				@Override
-				public void onCall(Region data) {
-					fireEvent(new ZoomResizeEvent(data.start,data.end));
-				}
-			};
-			callback = "zoomResizeEvent";
-		}
-		else if (type == FetchGeneEvent.getType()) {
-			eventCallback = new EventCallback<Region>() {
-				@Override
-				public void onCall(Region data) {
-					fireEvent(new FetchGeneEvent(data.start,data.end));
-				}
-			};
-			callback = "fetchGeneEvent";
-		}
-		else if (type == HighlightGeneEvent.getType()) {
-			eventCallback = new EventCallback<GeneHighlightData>() {
-				@Override
-				public void onCall(GeneHighlightData data) {
-					fireEvent(new HighlightGeneEvent(data.gene,data.x,data.y));
-                    showGeneInfoPopup(data);
-				}
-			};
-			callback = "highlightGeneEvent";
-		}
-		else if (type == UnhighlightGeneEvent.getType()) {
-			eventCallback = new EventCallback<Void>() {
-				@Override
-				public void onCall(Void data) {
-					fireEvent(new UnhighlightGeneEvent());
-                    if (showGeneInfoPopup) {
-                        geneInfoPopup.hide();
-                    }
-				}
-			};
-			callback = "unhighlightGeneEvent";
-		}
-		else if (type == ClickGeneEvent.getType()) {
-			eventCallback = new EventCallback<Gene>() {
-				@Override
-				public void onCall(Gene data) {
-					fireEvent(new ClickGeneEvent(data));
-				}
-			};
-			callback = "clickGeneEvent";
-		}
+			}
+		},"unhighlightGeneEvent");
+
+		sinkEvent(new EventCallback<Gene>() {
+			@Override
+			public void onCall(Gene data) {
+				fireEvent(new ClickGeneEvent(data));
+			}
+		},"clickGeneEvent");
+	}
+
+	private final void sinkEvent(EventCallback eventCallback,String callback)  {
 		processing.getInstance().api_addEventHandler(callback, eventCallback);
 	}
 
@@ -260,20 +250,17 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers,HasZoo
 
     @Override
 	public HandlerRegistration addMouseMoveHandler(MouseMoveEvent.Handler handler) {
-		sinkEvents(MouseMoveEvent.getType(), handler);
 		return addHandler(handler,MouseMoveEvent.getType());
 
 	}
 
 	@Override
 	public HandlerRegistration addZoomResizeHandler(ZoomResizeEvent.Handler handler) {
-		sinkEvents(ZoomResizeEvent.getType(), handler);
 		return addHandler(handler,ZoomResizeEvent.getType());
 	}
 
 	@Override
 	public HandlerRegistration addFetchGeneHandler(FetchGeneEvent.Handler handler) {
-		sinkEvents(FetchGeneEvent.getType(), handler);
 		return addHandler(handler,FetchGeneEvent.getType());
 	}
 
@@ -281,7 +268,6 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers,HasZoo
 	@Override
 	public HandlerRegistration addUnhighlightGeneHandlers(
 			UnhighlightGeneEvent.Handler handler) {
-		sinkEvents(UnhighlightGeneEvent.getType(), handler);
 		return addHandler(handler, UnhighlightGeneEvent.getType());
 	}
 
@@ -289,14 +275,12 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers,HasZoo
 
 	@Override
 	public HandlerRegistration addClickGeneHandler(ClickGeneEvent.Handler handler) {
-		sinkEvents(ClickGeneEvent.getType(), handler);
 		return addHandler(handler, ClickGeneEvent.getType());
 	}
 
 	@Override
 	public HandlerRegistration addHighlightGeneHandler(
 			HighlightGeneEvent.Handler handler) {
-		sinkEvents(HighlightGeneEvent.getType(), handler);
 		return addHandler(handler, HighlightGeneEvent.getType());
 	}
 
@@ -313,6 +297,12 @@ public class GeneViewer extends Composite implements HasMouseMoveHandlers,HasZoo
 	public void onAttach() {
 		super.onAttach();
 		onResize();
+	}
+
+	@Override
+	protected void onDetach() {
+		geneInfoPopup.hide();
+		super.onDetach();
 	}
 
 	public void forceLayout() {

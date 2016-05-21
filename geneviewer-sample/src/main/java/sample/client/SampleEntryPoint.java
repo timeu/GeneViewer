@@ -70,6 +70,7 @@ public class SampleEntryPoint implements EntryPoint {
     RadioButton genesWithFeaturesRd = new RadioButton("type","Genes with features");
     int[] geneRegion = new int[]{9778876,10633663};
     int[] geneWithFeaturesRegion = new int[]{10355429,10432933};
+    boolean isFeatures = false;
 
     @Override
     public void onModuleLoad() {
@@ -130,11 +131,11 @@ public class SampleEntryPoint implements EntryPoint {
         panel.setWidgetTopHeight(geneviewer,250, Style.Unit.PX,200, Style.Unit.PX);
         panel.setWidgetTopBottom(eventsPanel, 450, Style.Unit.PX, 0, Style.Unit.PX);
         RootLayoutPanel.get().add(panel);
+        sinkEvents();
         try {
             geneviewer.load(new Runnable() {
                 @Override
                 public void run() {
-                    sinkEvents();
                     changeType(false);
                 }
             });
@@ -174,6 +175,8 @@ public class SampleEntryPoint implements EntryPoint {
             @Override
             public void onFetchGenes(FetchGeneEvent event) {
                 logEvent("FetchGeneEvent called: start: " + event.getStart() + ", end:" + event.getEnd());
+                JsArrayMixed data = getData(isFeatures);
+                geneviewer.setGeneData(data);
             }
         });
 
@@ -191,7 +194,7 @@ public class SampleEntryPoint implements EntryPoint {
     }
 
     private void changeType(boolean isFeatures)
-    {
+    {   this.isFeatures = isFeatures;
         JsArrayMixed data = getData(isFeatures);
         int[] region = isFeatures ? geneWithFeaturesRegion : geneRegion;
         zoomLabel.setHTML("<b>"+region[0] + "</b> - <b>" + region[1]+"</b>");

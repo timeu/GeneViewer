@@ -21,7 +21,7 @@ void draw()
 {
     background(255)
     background(0,0,0,0);
-    browser.render();     
+    browser.render();
 }
 
 
