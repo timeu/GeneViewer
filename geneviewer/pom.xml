@@ -9,6 +9,7 @@
     <artifactId>geneviewer</artifactId>
     <packaging>gwt-lib</packaging>
     <name>GeneViewer</name>
+    <description>A GWT based visualization for a Gene track (Core library)</description>
 
     <build>
         <!-- required until https://github.com/tbroyer/gwt-maven-plugin/issues/33 is fixed -->

@@ -8,8 +8,8 @@
 
     <artifactId>geneviewer-sample</artifactId>
     <packaging>gwt-app</packaging>
-
     <name>GeneViewer Sample Application</name>
+    <description>A GWT based visualization for a Gene track (Sample app)</description>
 
     <build>
         <plugins>
@@ -27,7 +27,7 @@
                 <version>0.12</version>
                 <configuration>
                     <message>Creating site for ${project.version}</message>
-                    <outputDirectory>${project.build.directory}/${artifactId}-${version}/${gwt.shortName}</outputDirectory>
+                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/${gwt.shortName}</outputDirectory>
                 </configuration>
                 <executions>
                     <execution>
