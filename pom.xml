@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.timeu.gwt-libs.geneviewer</groupId>
     <artifactId>geneviewer-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>GeneViewer (Parent)</name>
     <packaging>pom</packaging>
     <description>A GWT based visualization for a Gene track</description>
@@ -207,6 +207,6 @@
         <url>https://timeu@github.com/timeu/geneviewer</url>
         <connection>scm:git@github.com:timeu/geneviewer.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/timeu/geneviewer.git</developerConnection>
-      <tag>v1.0.0</tag>
+      <tag>HEAD</tag>
   </scm>
 </project>
